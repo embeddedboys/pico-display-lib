@@ -157,6 +157,12 @@ extern int tft_fill_color(u16 color);
 extern void tft_video_flush(int xs, int ys, int xe, int ye, void *vmem, uint32_t len);
 extern void tft_async_video_push(struct video_frame *vf);
 
+extern void tft_write_cmd(struct tft_priv *priv, u8 cmd);
+extern void tft_write_data(struct tft_priv *priv, u8 data);
+
+#define write_cmd(priv, cmd) tft_write_cmd(priv, cmd)
+#define write_data(priv, data) tft_write_data(priv, data)
+
 extern void tft_write_reg(struct tft_priv *priv, int len, ...);
 #define NUMARGS(...)  (sizeof((int[]){__VA_ARGS__}) / sizeof(int))
 
