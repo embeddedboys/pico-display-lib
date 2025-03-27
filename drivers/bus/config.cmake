@@ -1,11 +1,11 @@
 if(TFT_BUS_TYPE EQUAL 0) # SPI
 
-    message(WARNING "SPI bus type selected.")
+    message(STATUS "SPI bus type selected.")
     set(PIO_LIB pio_spi_tx)
 
 elseif(TFT_BUS_TYPE EQUAL 1) # I8080
 
-    message(WARNING "I8080 bus type selected.")
+    message(STATUS "I8080 bus type selected.")
     set(PIO_LIB pio_i80)
 
 elseif(TFT_BUS_TYPE EQUAL 2)
@@ -18,8 +18,3 @@ elseif(TFT_BUS_TYPE EQUAL 2)
 else()
     message(FATAL_ERROR "Invalid TFT bus type!")
 endif()
-
-# list(APPEND DRIVER_SOURCES
-#     ${CMAKE_CURRENT_LIST_DIR}/pio_i80.c
-#     ${CMAKE_CURRENT_LIST_DIR}/pio_spi_tx.c
-# )

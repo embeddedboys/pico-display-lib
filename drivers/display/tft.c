@@ -178,9 +178,7 @@ static int tft_clear(struct tft_priv *priv, u16 clear)
 
     pr_debug("clearing screen (%d x %d) with color 0x%x\n", width, height, clear);
 
-    priv->tftops->set_addr_win(priv, 0, 0,
-                         priv->display->xres - 1,
-                         priv->display->yres - 1);
+    priv->tftops->set_addr_win(priv, 0, 0, width - 1, height - 1);
 
     for (i = 0; i < width * height; i++)
         write_buf_dc(priv, &clear, sizeof(u16), 1);
@@ -228,7 +226,7 @@ portTASK_FUNCTION(video_flush_task, pvParameters)
             // pr_debug("Received notification, val : %d\n", ulNotificationValue);
 
             if (ulNotificationValue > 0) {
-
+                /* Notification received */
             } else {
                 /* timeout */
             }

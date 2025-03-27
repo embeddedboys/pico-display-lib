@@ -41,6 +41,7 @@
 #include "semphr.h"
 
 #include "tft.h"
+#include "indev.h"
 #include "backlight.h"
 // #include "debug.h"
 
@@ -51,17 +52,34 @@ void vApplicationTickHook()
 
 }
 
+#if !INDEV_DRV_NOT_USED
+portTASK_FUNCTION(example_indev_read_task, pvParameters)
+{
+    indev_driver_init();
+
+    for (;;) {
+        if (indev_is_pressed())
+            printf("pressed at (%d, %d)\n", indev_read_x(), indev_read_y());
+
+        vTaskDelay(pdMS_TO_TICKS(INDEV_POLLING_PERIOD_MS));
+    }
+
+    vTaskDelete(NULL);
+}
+#endif
+
 portTASK_FUNCTION(example_video_push_task, pvParameters)
 {
-#define CUBE_SIZE 128
-    static uint16_t video_memory[CUBE_SIZE * CUBE_SIZE] = {0};
+#define CUBE_X_SIZE (TFT_HOR_RES / 3 * 2)
+#define CUBE_Y_SIZE (TFT_VER_RES / 3 * 2)
+    static uint16_t video_memory[CUBE_X_SIZE * CUBE_Y_SIZE] = {0};
     static struct video_frame vf = {
         .len = sizeof(video_memory),
         .vmem = video_memory,
-        .xs = TFT_HOR_RES / 2 - (CUBE_SIZE / 2) - 1,
-        .xe = TFT_HOR_RES / 2 + (CUBE_SIZE / 2) - 1,
-        .ys = TFT_VER_RES / 2 - (CUBE_SIZE / 2) - 1,
-        .ye = TFT_VER_RES / 2 + (CUBE_SIZE / 2) - 1,
+        .xs = TFT_HOR_RES / 2 - (CUBE_X_SIZE / 2) - 1,
+        .xe = TFT_HOR_RES / 2 + (CUBE_X_SIZE / 2) - 1,
+        .ys = TFT_VER_RES / 2 - (CUBE_Y_SIZE / 2) - 1,
+        .ye = TFT_VER_RES / 2 + (CUBE_Y_SIZE / 2) - 1,
     };
 
     tft_driver_init();
@@ -80,6 +98,7 @@ portTASK_FUNCTION(example_video_push_task, pvParameters)
         tft_async_video_push(&vf);
     }
 
+    vTaskDelete(NULL);
 }
 
 int main(void)
@@ -115,6 +134,11 @@ int main(void)
     TaskHandle_t video_flush_handler;
     xTaskCreate(video_flush_task, "video_flush", 256, NULL, (tskIDLE_PRIORITY + 2), &video_flush_handler);
     vTaskCoreAffinitySet(video_flush_handler, (1 << 1));
+
+#if !INDEV_DRV_NOT_USED
+    TaskHandle_t indev_handler;
+    xTaskCreate(example_indev_read_task, "indev_read", 256, NULL, (tskIDLE_PRIORITY + 0), &indev_handler);
+#endif
 
     printf("calling freertos scheduler, %lld\n", time_us_64());
     vTaskStartScheduler();

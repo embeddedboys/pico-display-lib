@@ -65,7 +65,7 @@ math(EXPR FLASH_CLK_KHZ "${SYS_CLK_KHZ} / ${PICO_FLASH_SPI_CLKDIV}")
 target_compile_definitions(bs2_default PRIVATE PICO_FLASH_SPI_CLKDIV=${PICO_FLASH_SPI_CLKDIV})
 target_compile_definitions(${PROJECT_NAME} PRIVATE FLASH_CLK_KHZ=${FLASH_CLK_KHZ})
 
-message(WARNING ${DRIVER_SOURCES})
+# message(WARNING ${DRIVER_SOURCES})
 target_sources(${PROJECT_NAME} PRIVATE
     ${DRIVER_SOURCES}
 )

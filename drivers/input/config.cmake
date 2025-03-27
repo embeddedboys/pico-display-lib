@@ -3,10 +3,5 @@ list(APPEND DRIVER_SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/cst816d.c
     ${CMAKE_CURRENT_LIST_DIR}/gt911.c
     ${CMAKE_CURRENT_LIST_DIR}/tsc2007.c
+    ${CMAKE_CURRENT_LIST_DIR}/ft6236.c
 )
-
-# Touch driver selection
-set(INDEV_DRV_NOT_USED    1)    # 1: not used, 0: used
-set(INDEV_DRV_USE_GT911   1)
-set(INDEV_DRV_USE_TSC2007 0)
-set(INDEV_DRV_USE_CST816D 0)

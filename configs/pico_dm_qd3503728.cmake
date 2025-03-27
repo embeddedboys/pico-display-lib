@@ -42,13 +42,6 @@ set(TFT_PIN_RS  20)  # 8080 TFT register select pin
 set(TFT_PIN_RES 22)  # 8080 TFT reset pin
 set(TFT_PIN_BLK 28)
 
-set(INDEV_BUS_TYPE 0)
-#     | Bus type | Description
-#  0  |   I2C    | Inter-Integrated Circuit
-#  1  |   SPI    | Serial Peripheral Interface (Not implemented yet)
-
-# /* Default Bus pins for Input device */
-
 set(TFT_HOR_RES   480)
 set(TFT_VER_RES   320)
 
@@ -60,3 +53,17 @@ set(DISP_OVER_PIO 1)
 set(PIO_USE_DMA 1)
 
 set(TFT_DRV_USE_ILI9488 1)
+
+set(INDEV_BUS_TYPE 0)
+#     | Bus type | Description
+#  0  |   I2C    | Inter-Integrated Circuit
+#  1  |   SPI    | Serial Peripheral Interface (Not implemented yet)
+
+set(INDEV_DRV_NOT_USED    0)  # 1: not used, 0: used
+set(INDEV_DRV_USE_FT6236  1)
+set(INDEV_POLLING_PERIOD_MS 33)
+
+# /* Default Bus pins for Input device */
+set(INDEV_PIN_SCL   27)
+set(INDEV_PIN_SDA   26)
+set(INDEV_PIN_RST   18)
