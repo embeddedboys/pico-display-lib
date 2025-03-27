@@ -1,0 +1,5 @@
+# Indev drivers define
+target_compile_definitions(${PROJECT_NAME} PUBLIC INDEV_DRV_NOT_USED=${INDEV_DRV_NOT_USED})
+target_compile_definitions(${PROJECT_NAME} PUBLIC INDEV_DRV_USE_CST816D=${INDEV_DRV_USE_CST816D})
+target_compile_definitions(${PROJECT_NAME} PUBLIC INDEV_DRV_USE_GT911=${INDEV_DRV_USE_GT911})
+target_compile_definitions(${PROJECT_NAME} PUBLIC INDEV_DRV_USE_TSC2007=${INDEV_DRV_USE_TSC2007})

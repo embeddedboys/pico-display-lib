@@ -1,0 +1,1 @@
+target_compile_definitions(${PROJECT_NAME} PUBLIC TFT_PIN_BLK=${TFT_PIN_BLK})
