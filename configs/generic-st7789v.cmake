@@ -41,13 +41,6 @@ set(TFT_PIN_BLK   12)
 # set(TFT_PIN_RS  20)  # 8080 TFT register select pin
 # set(TFT_PIN_RES 22)  # 8080 TFT reset pin
 
-set(INDEV_BUS_TYPE 0)
-#     | Bus type | Description
-#  0  |   I2C    | Inter-Integrated Circuit
-#  1  |   SPI    | Serial Peripheral Interface (Not implemented yet)
-
-# /* Default Bus pins for Input device */
-
 set(TFT_HOR_RES   240)
 set(TFT_VER_RES   240)
 
@@ -57,3 +50,11 @@ set(PIO_USE_DMA 1)
 
 set(TFT_DRV_USE_ST7789V 1)
 set(TFT_MODEL_P169H002 1)
+
+set(INDEV_BUS_TYPE 0)
+#     | Bus type | Description
+#  0  |   I2C    | Inter-Integrated Circuit
+#  1  |   SPI    | Serial Peripheral Interface (Not implemented yet)
+
+# /* Default Bus pins for Input device */
+set(INDEV_DRV_NOT_USED    1)  # 1: not used, 0: used

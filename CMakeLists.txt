@@ -29,6 +29,7 @@ set(DRIVER_SOURCES
 
 # select the suitable config file
 # include(${CMAKE_CURRENT_LIST_DIR}/configs/generic-st7789v.cmake)
+# include(${CMAKE_CURRENT_LIST_DIR}/configs/fpc-zh096g1321.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/configs/pico_dm_qd3503728.cmake)
 
 include(${DRIVERS_DIR}/backlight/config.cmake)

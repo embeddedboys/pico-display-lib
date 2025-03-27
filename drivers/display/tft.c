@@ -227,6 +227,7 @@ portTASK_FUNCTION(video_flush_task, pvParameters)
 
             if (ulNotificationValue > 0) {
                 /* Notification received */
+                frame_counter++;
             } else {
                 /* timeout */
             }

@@ -26,7 +26,19 @@
 #define TFT_BUS_TYPE_I80    0x01
 #define TFT_BUS_TYPE_I2C    0x02
 
+#ifndef TFT_X_OFFS
+    #define TFT_X_OFFS 0
+#endif
+
+#ifndef TFT_Y_OFFS
+    #define TFT_Y_OFFS 0
+#endif
+
 #define INDEV_BUS_TYPE_I2C  0x00
 #define INDEV_BUS_TYPE_SPI  0x01
+
+#ifndef INDEV_POLLING_PERIOD_MS
+    #define INDEV_POLLING_PERIOD_MS 33
+#endif
 
 #endif /* __CONFIG_H */

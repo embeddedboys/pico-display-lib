@@ -42,9 +42,11 @@
 
 #include "tft.h"
 #include "indev.h"
+#include "config.h"
 #include "backlight.h"
 // #include "debug.h"
 
+u32 frame_counter = 0;
 QueueHandle_t xToFlushQueue = NULL;
 
 void vApplicationTickHook()
@@ -68,6 +70,15 @@ portTASK_FUNCTION(example_indev_read_task, pvParameters)
 }
 #endif
 
+bool fps_timer_callback(struct repeating_timer *t)
+{
+    u32 current_fps = frame_counter / (time_us_32() / 1000000);
+    u32 pixel_fillrate = (current_fps * TFT_HOR_RES * TFT_VER_RES) / 1000000;
+    printf("fps: %d\t", current_fps);
+    printf("Pixel Fillrate : %d MPixel/s\n", pixel_fillrate);
+    return true;
+}
+
 portTASK_FUNCTION(example_video_push_task, pvParameters)
 {
 #define CUBE_X_SIZE (TFT_HOR_RES / 3 * 2)
@@ -76,9 +87,9 @@ portTASK_FUNCTION(example_video_push_task, pvParameters)
     static struct video_frame vf = {
         .len = sizeof(video_memory),
         .vmem = video_memory,
-        .xs = TFT_HOR_RES / 2 - (CUBE_X_SIZE / 2) - 1,
+        .xs = TFT_HOR_RES / 2 - (CUBE_X_SIZE / 2),
         .xe = TFT_HOR_RES / 2 + (CUBE_X_SIZE / 2) - 1,
-        .ys = TFT_VER_RES / 2 - (CUBE_Y_SIZE / 2) - 1,
+        .ys = TFT_VER_RES / 2 - (CUBE_Y_SIZE / 2),
         .ye = TFT_VER_RES / 2 + (CUBE_Y_SIZE / 2) - 1,
     };
 
@@ -125,6 +136,8 @@ int main(void)
 
     printf("\n\n\nPICO DM SPI Template LVGL Porting\n");
 
+    printf("CPU clockspeed: %d MHz\n", CPU_SPEED_MHZ);
+
     xToFlushQueue = xQueueCreate(2, sizeof(struct video_frame));
 
     TaskHandle_t video_push_handler;
@@ -139,6 +152,9 @@ int main(void)
     TaskHandle_t indev_handler;
     xTaskCreate(example_indev_read_task, "indev_read", 256, NULL, (tskIDLE_PRIORITY + 0), &indev_handler);
 #endif
+
+    struct repeating_timer fps_timer;
+    add_repeating_timer_ms(2000, fps_timer_callback, NULL, &fps_timer);
 
     printf("calling freertos scheduler, %lld\n", time_us_64());
     vTaskStartScheduler();

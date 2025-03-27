@@ -2,6 +2,8 @@ add_subdirectory(epaper)
 
 target_compile_definitions(${PROJECT_NAME} PUBLIC TFT_HOR_RES=${TFT_HOR_RES})
 target_compile_definitions(${PROJECT_NAME} PUBLIC TFT_VER_RES=${TFT_VER_RES})
+target_compile_definitions(${PROJECT_NAME} PUBLIC TFT_X_OFFS=${TFT_X_OFFS})
+target_compile_definitions(${PROJECT_NAME} PUBLIC TFT_Y_OFFS=${TFT_Y_OFFS})
 target_compile_definitions(${PROJECT_NAME} PUBLIC TFT_BUS_CLK_KHZ=${TFT_BUS_CLK_KHZ})
 target_compile_definitions(${PROJECT_NAME} PUBLIC DISP_OVER_PIO=${DISP_OVER_PIO})
 

@@ -166,6 +166,7 @@ extern void tft_write_reg16(struct tft_priv *priv, int len, ...);
 #define write_reg(priv, ...) \
     priv->tftops->write_reg(priv, NUMARGS(__VA_ARGS__), __VA_ARGS__)
 
+extern u32 frame_counter;
 extern QueueHandle_t xToFlushQueue;
 extern portTASK_FUNCTION(video_flush_task, pvParameters);
 

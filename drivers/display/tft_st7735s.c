@@ -28,17 +28,25 @@ static int tft_st7735_init_display(struct tft_priv *priv)
     printf("%s, writing patched initial sequence...\n", __func__);
     priv->tftops->reset(priv);
 
+    // write_reg(priv, 0x11);
+    // mdelay(120);
+
+    // write_reg(priv, 0x36, 0x00);
+    // write_reg(priv, 0x3A, 0x55);
+
+    // write_reg(priv, 0xB1, 0x40, 0x00, 0x00);
+
+    // write_reg(priv, 0xC6, 0x05);
+
+    // // write_reg(priv, 0x21);
+    // write_reg(priv, 0x29);
     write_reg(priv, 0x11);
     mdelay(120);
 
-    write_reg(priv, 0x36, 0x00);
+    write_reg(priv, 0x36, (1 << 7) | (1 << 6) | (1 << 5));
     write_reg(priv, 0x3A, 0x55);
 
-    write_reg(priv, 0xB1, 0x40, 0x00, 0x00);
-
-    write_reg(priv, 0xC6, 0x05);
-
-    // write_reg(priv, 0x21);
+    write_reg(priv, 0x21);
     write_reg(priv, 0x29);
 }
 
@@ -63,8 +71,8 @@ static void inline tft_st7735_set_addr_win(struct tft_priv *priv, int xs, int ys
 static struct tft_display st7735 = {
     .xres = TFT_X_RES,
     .yres = TFT_Y_RES,
-    .xoffs = 0,
-    .yoffs = 0,
+    .xoffs = TFT_X_OFFS,
+    .yoffs = TFT_Y_OFFS,
     .bpp  = 16,
     .backlight = 100,
     .tftops = {
