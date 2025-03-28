@@ -30,6 +30,7 @@ set(DRIVER_SOURCES
 # select the suitable config file
 # include(${CMAKE_CURRENT_LIST_DIR}/configs/generic-st7789v.cmake)
 # include(${CMAKE_CURRENT_LIST_DIR}/configs/generic-gc9a01.cmake)
+# include(${CMAKE_CURRENT_LIST_DIR}/configs/generic-ssd1327.cmake)
 # include(${CMAKE_CURRENT_LIST_DIR}/configs/fpc-zh096g1321.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/configs/pico_dm_qd3503728.cmake)
 # include(${CMAKE_CURRENT_LIST_DIR}/configs/pico_dm_gtm0375hi1t02.cmake)
