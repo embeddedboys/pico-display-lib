@@ -72,7 +72,7 @@ portTASK_FUNCTION(example_indev_read_task, pvParameters)
 
 bool fps_timer_callback(struct repeating_timer *t)
 {
-    u32 current_fps = frame_counter / (time_us_32() / 1000000);
+    u32 current_fps = frame_counter / (time_us_64() / 1000000);
     u32 pixel_fillrate = (current_fps * TFT_HOR_RES * TFT_VER_RES) / 1000000;
     printf("fps: %d\t", current_fps);
     printf("Pixel Fillrate : %d MPixel/s\n", pixel_fillrate);
@@ -124,6 +124,8 @@ int main(void)
         vreg_set_voltage(VREG_VOLTAGE_MAX);
     else
         vreg_set_voltage(VREG_VOLTAGE_DEFAULT);
+
+    busy_wait_at_least_cycles((uint32_t)((SYS_CLK_VREG_VOLTAGE_AUTO_ADJUST_DELAY_US * (uint64_t)XOSC_HZ) / 1000000));
 
     set_sys_clock_khz(CPU_SPEED_MHZ * 1000, true);
     clock_configure(clk_peri,
