@@ -7,6 +7,12 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC TFT_Y_OFFS=${TFT_Y_OFFS})
 target_compile_definitions(${PROJECT_NAME} PUBLIC TFT_BUS_CLK_KHZ=${TFT_BUS_CLK_KHZ})
 target_compile_definitions(${PROJECT_NAME} PUBLIC DISP_OVER_PIO=${DISP_OVER_PIO})
 
+if(TFT_MODEL_GENERIC)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC TFT_MODEL_GENERIC=1)
+else()
+    target_compile_definitions(${PROJECT_NAME} PUBLIC TFT_MODEL_GENERIC=0)
+endif()
+
 # TFT drivers define
 
 if(TFT_DRV_USE_ILI9341)
@@ -32,6 +38,10 @@ if(TFT_DRV_USE_ST7735)
 else()
     target_compile_definitions(${PROJECT_NAME} PUBLIC TFT_DRV_USE_ST7735=0)
 endif()
+
+target_compile_definitions(${PROJECT_NAME} PUBLIC
+    TFT_MODEL_MD144_SPI_V04=${TFT_MODEL_MD144_SPI_V04}
+)
 
 if(TFT_DRV_USE_ST7789V)
     target_compile_definitions(${PROJECT_NAME} PUBLIC TFT_DRV_USE_ST7789V=1)
