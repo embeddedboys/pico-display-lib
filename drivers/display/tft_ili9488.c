@@ -122,8 +122,16 @@ static struct tft_display ili9488 = {
 #if TFT_BUS_TYPE == TFT_BUS_TYPE_SPI
         .write_reg = tft_write_reg8,
         .video_sync = tft_ili9488_video_sync,
-#else
+#elif TFT_BUS_TYPE == TFT_BUS_TYPE_I80
+
+#if TFT_PIN_DB_COUNT == 8
+        .write_reg = tft_write_reg8,
+#elif TFT_PIN_DB_COUNT == 16
         .write_reg = tft_write_reg16,
+#else
+#error "TFT_PIN_DB_COUNT must be 8 or 16"
+#endif
+
 #endif
         .init_display = tft_ili9488_init_display,
     },

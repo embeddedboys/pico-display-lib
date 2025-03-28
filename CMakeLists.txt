@@ -32,6 +32,7 @@ set(DRIVER_SOURCES
 # include(${CMAKE_CURRENT_LIST_DIR}/configs/generic-gc9a01.cmake)
 # include(${CMAKE_CURRENT_LIST_DIR}/configs/fpc-zh096g1321.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/configs/pico_dm_qd3503728.cmake)
+# include(${CMAKE_CURRENT_LIST_DIR}/configs/pico_dm_gtm0375hi1t02.cmake)
 
 include(${DRIVERS_DIR}/backlight/config.cmake)
 include(${DRIVERS_DIR}/display/config.cmake)
