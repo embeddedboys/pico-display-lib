@@ -52,6 +52,7 @@ set(DISP_OVER_PIO 1)
 set(PIO_USE_DMA 1)
 
 set(TFT_DRV_USE_ST7735 1)
+set(TFT_MODEL_GENERIC 1)
 
 set(INDEV_BUS_TYPE 0)
 #     | Bus type | Description
