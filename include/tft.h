@@ -138,7 +138,7 @@ extern int tft_fill_color(u16 color);
         extern void pio_spi_tx_write_buf_dc(void *buf, size_t len, bool dc);
         #define write_buf_dc(p, b, l, r) pio_spi_tx_write_buf_dc(b, l, r)
     #else
-        define write_buf_dc(p, b, l, r) tft_spi_write_buf_dc(p, b, l, r)
+        #define write_buf_dc(p, b, l, r) tft_spi_write_buf_dc(p, b, l, r)
     #endif
 
 #elif TFT_BUS_TYPE == TFT_BUS_TYPE_I80
