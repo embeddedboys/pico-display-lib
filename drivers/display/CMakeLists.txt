@@ -60,6 +60,10 @@ else()
     target_compile_definitions(${PROJECT_NAME} PUBLIC TFT_DRV_USE_ST7796=0)
 endif()
 
+target_compile_definitions(${PROJECT_NAME} PUBLIC
+    TFT_MODEL_YT350S006=${TFT_MODEL_YT350S006}
+)
+
 if(TFT_DRV_USE_SSD1306)
     target_compile_definitions(${PROJECT_NAME} PUBLIC TFT_DRV_USE_SSD1306=1)
 else()
