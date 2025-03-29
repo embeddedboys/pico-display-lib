@@ -198,7 +198,7 @@ static int tft_clear(struct tft_priv *priv, u16 clear)
 
 int tft_fill_color(u16 color)
 {
-    return tft_clear(&g_priv, color);
+    return g_priv.tftops->clear(&g_priv, color);
 }
 
 static void tft_video_sync(struct tft_priv *priv, int xs, int ys, int xe, int ye, void *vmem, size_t len)
