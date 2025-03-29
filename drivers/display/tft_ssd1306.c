@@ -111,17 +111,35 @@ static void tft_ssd1306_set_pos(struct tft_priv *priv, u8 page, u8 col)
     write_reg(priv, 0x10 | ((col >> 4)));
 }
 
+static uint8_t rgb565_to_brightness(u16 color)
+{
+    u8 r = (color >> 11) & 0x1f;
+    u8 g = (color >> 5) & 0x3f;
+    u8 b = color & 0x1f;
+
+    return (r * 3 + g + b * 4) >> 3;
+}
+
+static u8 dgram[TFT_HOR_RES * TFT_VER_RES / 8];
 static void tft_ssd1306_video_sync(struct tft_priv *priv, int xs, int ys, int xe, int ye, void *vmem, size_t len)
 {
     // pr_debug("video sync: xs=%d, ys=%d, xe=%d, ye=%d, len=%d\n", xs, ys, xe, ye, len);
-    // tft_ssd1306_set_pos(priv, ys / 8, xs);
-
-    // write_buf_dc(priv, vmem, len, 1);
-    uint8_t *vmem8 = (uint8_t *)vmem;
-    len /= 16;
+    u16 *colorp = (u16 *)vmem;
+    size_t remain = len / 2;
+    int x, y, i = 0;
 
     tft_ssd1306_set_pos(priv, 0, 0);
-    write_buf_dc(priv, vmem8, len, 1);
+
+    for (x = xs; x < xe; x++) {
+        for (y = ys; y < ye; y++) {
+            if(rgb565_to_brightness(colorp[i++]) < 128)
+                dgram[(y / 8) * TFT_HOR_RES + x] |= (1 << (y % 8));
+            else
+                dgram[(y / 8) * TFT_HOR_RES + x] &= ~(1 << (y % 8));
+        }
+    }
+
+    write_buf_dc(priv, dgram, sizeof(dgram), 1);
 }
 
 static struct tft_display ssd1306 = {
