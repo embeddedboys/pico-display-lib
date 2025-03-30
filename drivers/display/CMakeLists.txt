@@ -94,6 +94,12 @@ else()
     target_compile_definitions(${PROJECT_NAME} PUBLIC TFT_DRV_USE_R61581=0)
 endif()
 
+if(TFT_DRV_USE_ST7305)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC TFT_DRV_USE_ST7305=1)
+else()
+    target_compile_definitions(${PROJECT_NAME} PUBLIC TFT_DRV_USE_ST7305=0)
+endif()
+
 if(TFT_DRV_USE_ST7576)
     target_compile_definitions(${PROJECT_NAME} PUBLIC TFT_DRV_USE_ST7576=1)
 else()

@@ -29,6 +29,7 @@ set(DRIVER_SOURCES
 
 # select the suitable config file
 # include(${CMAKE_CURRENT_LIST_DIR}/configs/generic-st7789v.cmake)
+# include(${CMAKE_CURRENT_LIST_DIR}/configs/generic-st7305.cmake)
 # include(${CMAKE_CURRENT_LIST_DIR}/configs/generic-st7576.cmake)
 # include(${CMAKE_CURRENT_LIST_DIR}/configs/generic-gc9a01.cmake)
 # include(${CMAKE_CURRENT_LIST_DIR}/configs/generic-gc9a01-8bit.cmake)
