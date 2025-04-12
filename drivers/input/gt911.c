@@ -27,10 +27,10 @@
 
 #if INDEV_DRV_USE_GT911
 
-#define GT911_PIN_SCL   7
-#define GT911_PIN_SDA   6
-#define GT911_PIN_RST   22
-#define GT911_PIN_IRQ   28
+#define GT911_PIN_SCL   INDEV_PIN_SCL
+#define GT911_PIN_SDA   INDEV_PIN_SDA
+#define GT911_PIN_RST   INDEV_PIN_RST
+#define GT911_PIN_IRQ   INDEV_PIN_IRQ
 
 #define GT911_CMD_WR    0x28
 #define GT911_CMD_RD    0x29
@@ -48,8 +48,8 @@
 // #define GT911_REG_TP4   0x8168  // Touch Point 4 Data Address
 // #define GT911_REG_TP5   0x8170  // Touch Point 5 Data Address
 
-#define GT911_X_RES     LCD_HOR_RES
-#define GT911_Y_RES     LCD_VER_RES
+#define GT911_X_RES     TFT_HOR_RES
+#define GT911_Y_RES     TFT_VER_RES
 
 #define GT911_DEF_I2C   i2c1
 #define GT911_ADDR      0x14
@@ -205,7 +205,7 @@ static void gt911_hw_init(struct indev_priv *priv)
         write_addr16(priv, GT911_REG_CTRL, temp, 1);
     }
 
-    priv->ops->set_dir(priv, INDEV_DIR_SWITCH_XY | INDEV_DIR_INVERT_Y);
+    // priv->ops->set_dir(priv, INDEV_DIR_SWITCH_XY | INDEV_DIR_INVERT_Y);
 }
 
 static struct indev_spec gt911 = {

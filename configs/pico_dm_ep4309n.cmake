@@ -59,10 +59,12 @@ set(INDEV_BUS_TYPE 0)
 #  0  |   I2C    | Inter-Integrated Circuit
 #  1  |   SPI    | Serial Peripheral Interface (Not implemented yet)
 
-set(INDEV_DRV_NOT_USED    1)  # 1: not used, 0: used
+set(INDEV_DRV_NOT_USED    0)  # 1: not used, 0: used
+set(INDEV_DRV_USE_GT911   1)
 set(INDEV_POLLING_PERIOD_MS 33)
 
 # /* Default Bus pins for Input device */
-set(INDEV_PIN_SCL   27)
-set(INDEV_PIN_SDA   26)
-set(INDEV_PIN_IRQ   21)
+set(INDEV_PIN_SCL   19)
+set(INDEV_PIN_SDA   18)
+set(INDEV_PIN_IRQ   26)
+set(INDEV_PIN_RST   27)
