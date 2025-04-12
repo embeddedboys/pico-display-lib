@@ -168,6 +168,30 @@ static int tft_reset(struct tft_priv *priv)
     return 0;
 }
 
+static int tft_set_dir(struct tft_priv *priv, u8 dir)
+{
+    // printf("setting display rotation to %d\n", dir);
+
+    // switch (dir) {
+    // case TFT_ROTATE_0:
+    //     write_reg(priv, MADCTL, MX | BGR);
+    //     break;
+    // case TFT_ROTATE_90:
+    //     write_reg(priv, MADCTL, MV | BGR);
+    //     break;
+    // case TFT_ROTATE_180:
+    //     write_reg(priv, MADCTL, MY | BGR);
+    //     break;
+    // case TFT_ROTATE_270:
+    //     write_reg(priv, MADCTL, MY | MX | MV | BGR);
+    //     break;
+    // default:
+    //     break;
+    // }
+
+    return 0;
+}
+
 static void inline tft_set_addr_win(struct tft_priv *priv, int xs, int ys, int xe, int ye)
 {
     /* set column adddress */
@@ -334,6 +358,12 @@ static int tft_hw_init(struct tft_priv *priv)
     pr_debug("initializing display...\n");
     priv->tftops->init_display(priv);
 
+    /*
+     * We reset display rotation here because the
+     * `init_display` function may have changed it
+     */
+    priv->tftops->set_dir(priv, priv->display->rotate);
+
     /* clear screen to black */
     // pr_debug("clearing screen...\n");
     // priv->tftops->clear(priv, 0x0);
@@ -351,6 +381,8 @@ void tft_merge_tftops(struct tft_ops *dst, struct tft_ops *src)
         dst->write_reg = src->write_reg;
     if (src->init_display)
         dst->init_display = src->init_display;
+    if (src->set_dir)
+        dst->set_dir = src->set_dir;
     if (src->reset)
         dst->reset = src->reset;
     if (src->clear)
@@ -398,6 +430,7 @@ int tft_probe(struct tft_display *display)
 #endif
 
     priv->tftops->reset = tft_reset;
+    priv->tftops->set_dir = tft_set_dir;
     priv->tftops->set_addr_win = tft_set_addr_win;
     priv->tftops->clear = tft_clear;
     priv->tftops->video_sync = tft_video_sync;

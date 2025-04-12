@@ -22,6 +22,13 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+enum {
+    TFT_ROTATE_0    = 0x00,
+    TFT_ROTATE_90   = 0x01,
+    TFT_ROTATE_180  = 0x02,
+    TFT_ROTATE_270  = 0x03,
+};
+
 #define TFT_BUS_TYPE_SPI    0x00
 #define TFT_BUS_TYPE_I80    0x01
 #define TFT_BUS_TYPE_I2C    0x02

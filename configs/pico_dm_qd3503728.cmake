@@ -15,7 +15,7 @@ elseif(${PICO_BOARD} STREQUAL  "pico2" OR ${PICO_PLATFORM} STREQUAL  "rp2350")
     #  1  | 225MHz  |   75MHz   |  1.10(V) (default, stable, recommended for most devices)
     #  2  | 366MHz  |  122MHz   |  1.20(V)
     #  3  | 384MHz  |  128MHz   |  1.20(V)
-    set(OVERCLOCK_PROFILE 2)
+    set(OVERCLOCK_PROFILE 1)
 endif()
 
 set(TFT_BUS_TYPE 1)
@@ -42,8 +42,8 @@ set(TFT_PIN_RS  20)  # 8080 TFT register select pin
 set(TFT_PIN_RES 22)  # 8080 TFT reset pin
 set(TFT_PIN_BLK 28)
 
-set(TFT_HOR_RES   480)
-set(TFT_VER_RES   320)
+set(TFT_HOR_RES   320)
+set(TFT_VER_RES   480)
 
 # Rotation configuration
 set(TFT_ROTATION 1)  # 0: normal, 1: 90 degree, 2: 180 degree, 3: 270 degree

@@ -110,6 +110,17 @@ struct video_frame {
     size_t len;
 };
 
+#define BIT(nr)			(1UL << (nr))
+#define MADCTL 0x36
+#define MY  BIT(7)
+#define MX  BIT(6)
+#define MV  BIT(5)
+#define ML  BIT(4)
+#define BGR BIT(3)
+#define MH  BIT(2)
+#define FH  BIT(1)
+#define FV  BIT(0)
+
 #define TFT_REG_BUF_SIZE 64
 #define TFT_TX_BUF_SIZE 2048
 #define TFT_X_RES TFT_HOR_RES

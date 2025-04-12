@@ -63,7 +63,7 @@ static int tft_ili9488_init_display(struct tft_priv *priv)
     write_reg(priv, 0xC0, 0x17, 0x15);          // Power Control 1
     write_reg(priv, 0xC1, 0x41);                // Power Control 2
     write_reg(priv, 0xC5, 0x00, 0x12, 0x80);    // VCOM Control
-    write_reg(priv, 0x36, 0x28);                // Memory Access Control
+    // write_reg(priv, 0x36, 0x28);                // Memory Access Control
     write_reg(priv, 0x3A, 0x55);                // Pixel Interface Format RGB565 8080 16-bit
     write_reg(priv, 0xB0, 0x00);                // Interface Mode Control
 
@@ -113,11 +113,36 @@ static void tft_ili9488_video_sync(struct tft_priv *priv, int xs, int ys, int xe
 
 }
 
+static int tft_ili9488_set_dir(struct tft_priv *priv, u8 dir)
+{
+    printf("setting display rotation to %d\n", dir);
+
+    switch (dir) {
+    case TFT_ROTATE_0:
+        write_reg(priv, MADCTL, MX | BGR);
+        break;
+    case TFT_ROTATE_90:
+        write_reg(priv, MADCTL, MV | BGR);
+        break;
+    case TFT_ROTATE_180:
+        write_reg(priv, MADCTL, MY | BGR);
+        break;
+    case TFT_ROTATE_270:
+        write_reg(priv, MADCTL, MX | MY | MV | BGR);
+        break;
+    default:
+        break;
+    }
+
+    return 0;
+}
+
 static struct tft_display ili9488 = {
     .xres = TFT_X_RES,
     .yres = TFT_Y_RES,
     .bpp  = 16,
     .backlight = 100,
+    .rotate = TFT_ROTATION,
     .tftops = {
 #if TFT_BUS_TYPE == TFT_BUS_TYPE_SPI
         .write_reg = tft_write_reg8,
@@ -133,6 +158,7 @@ static struct tft_display ili9488 = {
 #endif
 
 #endif
+        .set_dir = tft_ili9488_set_dir,
         .init_display = tft_ili9488_init_display,
     },
 };
