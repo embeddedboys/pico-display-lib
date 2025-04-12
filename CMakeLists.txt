@@ -101,6 +101,16 @@ target_link_libraries(${PROJECT_NAME}
     ${PIO_LIB}
 )
 
+math(EXPR FLASH_CLK_KHZ "${SYS_CLK_KHZ} / ${PICO_FLASH_SPI_CLKDIV}")
+math(EXPR FLASH_CLK_MHZ "${FLASH_CLK_KHZ} / 1000")
+math(EXPR SYS_CLK_MHZ "${SYS_CLK_KHZ} / 1000")
+math(EXPR TFT_BUS_CLK_MHZ "${TFT_BUS_CLK_KHZ} / 1000")
+message(STATUS "
+    CPU speed   : ${SYS_CLK_MHZ} MHz
+    Flash speed : ${FLASH_CLK_MHZ} MHz
+    BUS speed   : ${TFT_BUS_CLK_MHZ} MHz"
+)
+
 pico_enable_stdio_usb(${PROJECT_NAME} 0)
 pico_enable_stdio_uart(${PROJECT_NAME} 1)
 pico_add_extra_outputs(${PROJECT_NAME})
