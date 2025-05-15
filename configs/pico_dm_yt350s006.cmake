@@ -41,6 +41,9 @@ set(TFT_PIN_BLK   13)
 # set(TFT_PIN_RS  20)  # 8080 TFT register select pin
 # set(TFT_PIN_RES 22)  # 8080 TFT reset pin
 
+# TFT backlight behavior, 0 : active low, 1 : active high
+set(TFT_BLK_ACTIVE_HIGH 1)
+
 set(TFT_HOR_RES   480)
 set(TFT_VER_RES   320)
 

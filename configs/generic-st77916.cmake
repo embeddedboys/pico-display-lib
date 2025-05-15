@@ -26,12 +26,12 @@ set(TFT_BUS_TYPE 0)
 
 # /* Default TFT pins for SPI interface */
 set(TFT_SPIX      0)    # set this if spi controller will be used.
-set(TFT_PIN_SCL   10)
-set(TFT_PIN_SDA   11)
+set(TFT_PIN_SCL   18)
+set(TFT_PIN_SDA   19)
 set(TFT_PIN_RES   15)
 set(TFT_PIN_DC    14)
-set(TFT_PIN_CS    9)
-set(TFT_PIN_BLK   13)
+set(TFT_PIN_CS    13)
+set(TFT_PIN_BLK   12)
 
 # /* Default TFT Pins for I8080 interface */
 # set(TFT_PIN_DB_BASE  0)  # 8080 TFT data bus base pin
@@ -44,14 +44,28 @@ set(TFT_PIN_BLK   13)
 # TFT backlight behavior, 0 : active low, 1 : active high
 set(TFT_BLK_ACTIVE_HIGH 1)
 
-set(TFT_HOR_RES   240)
-set(TFT_VER_RES   320)
+set(TFT_HOR_RES   360)
+set(TFT_VER_RES   360)
 
-set(TFT_BUS_CLK_KHZ 80000)
+# TFT Bus clock speed
+set(TFT_BUS_CLK_KHZ 75000)
+set(TFT_BUS_CLK_KHZ 100000)
+
+# TFT Bus use PIO or other method
 set(DISP_OVER_PIO 1)
+
+# PIO if use DMA or CPU
 set(PIO_USE_DMA 1)
 
-set(TFT_DRV_USE_ILI9341 1)
+set(TFT_DRV_USE_ST77916 1)
+message(STATUS "TFT Driver: ST77916")
+
+# TFT Model selection
+set(TFT_MODEL_GENERIC  1)
+
+# TFT Rotation selection
+# 0: normal, 1: 90 degree, 2: 180 degree, 3: 270 degree
+set(TFT_ROTATION  0)
 
 set(INDEV_BUS_TYPE 0)
 #     | Bus type | Description

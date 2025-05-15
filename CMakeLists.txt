@@ -36,6 +36,8 @@ set(DRIVER_SOURCES
 # include(${CMAKE_CURRENT_LIST_DIR}/configs/generic-ssd1306.cmake)
 # include(${CMAKE_CURRENT_LIST_DIR}/configs/generic-ssd1327.cmake)
 # include(${CMAKE_CURRENT_LIST_DIR}/configs/generic-ili9341.cmake)
+# include(${CMAKE_CURRENT_LIST_DIR}/configs/generic-st77916.cmake)
+# include(${CMAKE_CURRENT_LIST_DIR}/configs/wlk1804rctp-14p.cmake)
 # include(${CMAKE_CURRENT_LIST_DIR}/configs/fpc-zh096g1321.cmake)
 # include(${CMAKE_CURRENT_LIST_DIR}/configs/md144_spi_v04.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/configs/pico_dm_qd3503728.cmake)

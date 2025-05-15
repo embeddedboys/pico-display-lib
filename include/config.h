@@ -29,6 +29,11 @@ enum {
     TFT_ROTATE_270  = 0x03,
 };
 
+// Assume that the backlight is active high.
+#ifndef TFT_BLK_ACTIVE_HIGH
+    #define TFT_BLK_ACTIVE_HIGH 1
+#endif
+
 #define TFT_BUS_TYPE_SPI    0x00
 #define TFT_BUS_TYPE_I80    0x01
 #define TFT_BUS_TYPE_I2C    0x02

@@ -79,6 +79,25 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC
     TFT_MODEL_YT350S006=${TFT_MODEL_YT350S006}
 )
 
+if(TFT_DRV_USE_ST77916)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC TFT_DRV_USE_ST77916=1)
+
+    if (TFT_MODEL_GENERIC)
+        target_compile_definitions(${PROJECT_NAME} PUBLIC TFT_MODEL_GENERIC=1)
+    else()
+        target_compile_definitions(${PROJECT_NAME} PUBLIC TFT_MODEL_GENERIC=0)
+    endif()
+
+    if(TFT_MODEL_W180TE010I_18Z)
+        target_compile_definitions(${PROJECT_NAME} PUBLIC TFT_MODEL_W180TE010I_18Z=1)
+    else()
+        target_compile_definitions(${PROJECT_NAME} PUBLIC TFT_MODEL_W180TE010I_18Z=0)
+    endif()
+
+else()
+    target_compile_definitions(${PROJECT_NAME} PUBLIC TFT_DRV_USE_ST77916=0)
+endif()
+
 if(TFT_DRV_USE_SSD1306)
     target_compile_definitions(${PROJECT_NAME} PUBLIC TFT_DRV_USE_SSD1306=1)
 else()

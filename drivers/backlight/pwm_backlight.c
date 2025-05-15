@@ -64,15 +64,19 @@ struct backlight_device {
     struct backlight_profile prof;
 } g_bl_priv;
 
-
 void __bl_set_lvl(struct backlight_device *dev, u8 level)
 {
     /* we shouldn't set backlight percent to 0%, otherwise we can't see nothing */
     u8 percent = (level + dev->prof.bl_lvl_offs) > 100 ? 100 : (level + dev->prof.bl_lvl_offs);
 
     /* To pwm level */
+#if TFT_BLK_ACTIVE_HIGH
     u16 pwm_lvl = (percent * 65535 / 100);
     pwm_set_gpio_level(dev->bl_pin, pwm_lvl);
+#else   // TFT backlight active low
+    u16 pwm_lvl = ((100 - percent) * 65535 / 100);
+    pwm_set_gpio_level(dev->bl_pin, pwm_lvl);
+#endif
 
     dev->bl_lvl = percent;
 }
