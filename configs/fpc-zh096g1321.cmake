@@ -50,6 +50,9 @@ set(TFT_VER_RES   80)
 set(TFT_X_OFFS  1)
 set(TFT_Y_OFFS  26)
 
+# Rotation configuration
+set(TFT_ROTATION 0)  # 0: normal, 1: 90 degree, 2: 180 degree, 3: 270 degree
+
 set(TFT_BUS_CLK_KHZ 75000)
 set(DISP_OVER_PIO 1)
 set(PIO_USE_DMA 1)

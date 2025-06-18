@@ -48,6 +48,10 @@ set(TFT_BLK_ACTIVE_HIGH 0)
 set(TFT_HOR_RES   360)
 set(TFT_VER_RES   360)
 
+# TFT Rotation selection
+# 0: normal, 1: 90 degree, 2: 180 degree, 3: 270 degree
+set(TFT_ROTATION  0)
+
 # TFT Bus clock speed
 set(TFT_BUS_CLK_KHZ 75000)
 set(TFT_BUS_CLK_KHZ 100000)
@@ -63,10 +67,6 @@ message(STATUS "TFT Driver: ST77916")
 
 # TFT Model selection
 set(TFT_MODEL_W180TE010I_18Z  1)
-
-# TFT Rotation selection
-# 0: normal, 1: 90 degree, 2: 180 degree, 3: 270 degree
-set(TFT_ROTATION  0)
 
 set(INDEV_BUS_TYPE 0)
 #     | Bus type | Description
