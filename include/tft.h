@@ -110,6 +110,7 @@ struct video_frame {
     size_t len;
 };
 
+#undef BIT
 #define BIT(nr)			(1UL << (nr))
 #define MADCTL 0x36
 #define MY  BIT(7)
@@ -126,6 +127,7 @@ struct video_frame {
 #define TFT_X_RES TFT_HOR_RES
 #define TFT_Y_RES TFT_VER_RES
 
+#undef ARRAY_SIZE
 #define ARRAY_SIZE(arr) (sizeof(arr)/sizeof(arr[0]))
 #define dm_gpio_set_value(p,v) gpio_put(p, v)
 #define mdelay(v) busy_wait_ms(v)
