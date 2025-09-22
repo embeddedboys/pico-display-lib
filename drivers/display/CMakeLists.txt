@@ -22,6 +22,12 @@ target_compile_definitions(${LIBRARY_NAME} PUBLIC TFT_Y_OFFS=${TFT_Y_OFFS})
 target_compile_definitions(${LIBRARY_NAME} PUBLIC TFT_BUS_CLK_KHZ=${TFT_BUS_CLK_KHZ})
 target_compile_definitions(${LIBRARY_NAME} PUBLIC DISP_OVER_PIO=${DISP_OVER_PIO})
 
+if (TFT_COLOR_16_SWAP)
+    target_compile_definitions(${LIBRARY_NAME} PUBLIC TFT_COLOR_16_SWAP=1)
+else()
+    target_compile_definitions(${LIBRARY_NAME} PUBLIC TFT_COLOR_16_SWAP=0)
+endif()
+
 if(TFT_MODEL_GENERIC)
     target_compile_definitions(${LIBRARY_NAME} PUBLIC TFT_MODEL_GENERIC=1)
 else()

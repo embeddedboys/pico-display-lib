@@ -229,6 +229,13 @@ static void tft_video_sync(struct tft_priv *priv, int xs, int ys, int xe, int ye
 {
     // pr_debug("video sync: xs=%d, ys=%d, xe=%d, ye=%d, len=%d\n", xs, ys, xe, ye, len);
     priv->tftops->set_addr_win(priv, xs, ys, xe, ye);
+
+#if TFT_COLOR_16_SWAP
+    u16 *p = (u16 *)vmem;
+    for (size_t i = 0; i < len / 2; i++)
+        p[i] = (p[i] << 8) | (p[i] >> 8);
+#endif
+
     write_buf_dc(priv, vmem, len, 1);
 }
 

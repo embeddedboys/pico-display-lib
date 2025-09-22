@@ -15,7 +15,7 @@ elseif(${PICO_BOARD} STREQUAL  "pico2" OR ${PICO_PLATFORM} STREQUAL  "rp2350")
     #  1  | 225MHz  |   75MHz   |  1.10(V) (default, stable, recommended for most devices)
     #  2  | 366MHz  |  122MHz   |  1.20(V)
     #  3  | 384MHz  |  128MHz   |  1.20(V)
-    set(OVERCLOCK_PROFILE 2)
+    set(OVERCLOCK_PROFILE 1)
 endif()
 
 set(TFT_BUS_TYPE 0)
@@ -50,6 +50,9 @@ set(TFT_VER_RES   320)
 # TFT Rotation selection
 # 0: normal, 1: 90 degree, 2: 180 degree, 3: 270 degree
 set(TFT_ROTATION  0)
+
+# Swap the 2 bytes of RGB565 color. Useful if the display has an 8-bit interface (e.g. SPI)
+set(TFT_COLOR_16_SWAP 1)
 
 set(TFT_BUS_CLK_KHZ 100000)
 set(DISP_OVER_PIO 1)
