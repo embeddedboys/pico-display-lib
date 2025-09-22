@@ -26,11 +26,11 @@ set(TFT_BUS_TYPE 0)
 
 # /* Default TFT pins for SPI interface */
 set(TFT_SPIX      0)    # set this if spi controller will be used.
-set(TFT_PIN_SCL   10)
-set(TFT_PIN_SDA   11)
+set(TFT_PIN_SCL   18)
+set(TFT_PIN_SDA   19)
 set(TFT_PIN_RES   15)
 set(TFT_PIN_DC    14)
-set(TFT_PIN_CS    9)
+set(TFT_PIN_CS    12)
 set(TFT_PIN_BLK   13)
 
 # /* Default TFT Pins for I8080 interface */
@@ -50,7 +50,10 @@ set(TFT_VER_RES   320)
 # Rotation configuration
 set(TFT_ROTATION 0)  # 0: normal, 1: 90 degree, 2: 180 degree, 3: 270 degree
 
-set(TFT_BUS_CLK_KHZ 80000)
+# Swap the 2 bytes of RGB565 color. Useful if the display has an 8-bit interface (e.g. SPI)
+set(TFT_COLOR_16_SWAP 1)
+
+set(TFT_BUS_CLK_KHZ 75000)
 set(DISP_OVER_PIO 1)
 set(PIO_USE_DMA 1)
 
