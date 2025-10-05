@@ -18,6 +18,11 @@ elseif(${PICO_BOARD} STREQUAL  "pico2" OR ${PICO_PLATFORM} STREQUAL  "rp2350")
     set(OVERCLOCK_PROFILE 1)
 endif()
 
+set(DEBUG_UART_INTERFACE 0)
+set(DEBUG_UART_SPEED 115200)
+set(DEBUG_UART_TX_PIN 16)
+set(DEBUG_UART_RX_PIN 17)
+
 set(TFT_BUS_TYPE 1)
 #     | Bus type | Description
 #  0  |   SPI    | Serial Peripheral Interface
