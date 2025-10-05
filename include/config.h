@@ -22,6 +22,32 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
+#ifndef DEBUG_UART_INTERFACE
+	#define DEBUG_UART_INTERFACE 0
+#endif
+
+#ifndef DEBUG_UART_SPEED
+	#define DEBUG_UART_SPEED 115200
+#endif
+
+#ifndef DEBUG_UART_TX_PIN
+	#define DEBUG_UART_TX_PIN 0
+#endif
+
+#ifndef DEBUG_UART_RX_PIN
+	#define DEBUG_UART_RX_PIN 1
+#endif
+
+#if DEBUG_UART_INTERFACE == 0
+	#define debug_uart uart0
+#elif DEBUG_UART_INTERFACE == 1
+	#define debug_uart uart1
+#elif DEBUG_UART_INTERFACE == 2
+	#define debug_uart uart2
+#else
+	#error "Invalid DEBUG_UART_INTERFACE value"
+#endif
+
 enum {
     TFT_ROTATE_0    = 0x00,
     TFT_ROTATE_90   = 0x01,

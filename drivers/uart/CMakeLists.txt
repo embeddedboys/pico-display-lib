@@ -1,0 +1,22 @@
+if(DEBUG_UART_INTERFACE)
+	target_compile_definitions(${LIBRARY_NAME} PUBLIC DEBUG_UART_INTERFACE=${DEBUG_UART_INTERFACE})
+else()
+	target_compile_definitions(${LIBRARY_NAME} PUBLIC DEBUG_UART_INTERFACE=0)
+endif()
+
+if(DEBUG_UART_SPEED)
+	target_compile_definitions(${LIBRARY_NAME} PUBLIC DEBUG_UART_SPEED=${DEBUG_UART_SPEED})
+endif()
+
+if(DEBUG_UART_TX_PIN)
+	target_compile_definitions(${LIBRARY_NAME} PUBLIC DEBUG_UART_TX_PIN=${DEBUG_UART_TX_PIN})
+endif()
+
+if(DEBUG_UART_RX_PIN)
+	target_compile_definitions(${LIBRARY_NAME} PUBLIC DEBUG_UART_RX_PIN=${DEBUG_UART_RX_PIN})
+endif()
+
+message("DEBUG_UART_INTERFACE=${DEBUG_UART_INTERFACE}")
+message("DEBUG_UART_SPEED=${DEBUG_UART_SPEED}")
+message("DEBUG_UART_TX_PIN=${DEBUG_UART_TX_PIN}")
+message("DEBUG_UART_RX_PIN=${DEBUG_UART_RX_PIN}")

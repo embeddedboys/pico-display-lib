@@ -19,16 +19,5 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-include(${CMAKE_CURRENT_LIST_DIR}/backlight/config.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/display/config.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/input/config.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/bus/config.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/clk/config.cmake)
-
-add_subdirectory(backlight)
-add_subdirectory(display)
-add_subdirectory(input)
-add_subdirectory(bus)
-
 # message(FATAL_ERROR "drivers: ${DRIVER_SOURCES}")
 add_library(drivers INTERFACE ${DRIVER_SOURCES})

@@ -43,12 +43,14 @@ include(${DRIVERS_DIR}/display/config.cmake)
 include(${DRIVERS_DIR}/input/config.cmake)
 include(${DRIVERS_DIR}/bus/config.cmake)
 include(${DRIVERS_DIR}/clk/config.cmake)
+include(${DRIVERS_DIR}/uart/config.cmake)
 
 add_subdirectory(${DRIVERS_DIR}/backlight)
 add_subdirectory(${DRIVERS_DIR}/display)
 add_subdirectory(${DRIVERS_DIR}/input)
 add_subdirectory(${DRIVERS_DIR}/bus)
 add_subdirectory(${DRIVERS_DIR}/clk)
+add_subdirectory(${DRIVERS_DIR}/uart)
 
 # message(WARNING ${DRIVER_SOURCES})
 target_sources(${LIBRARY_NAME} PRIVATE
