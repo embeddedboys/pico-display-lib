@@ -89,9 +89,7 @@ define_i80_write_piox(i80_write_pio16, uint16_t)
 
 int __time_critical_func(i80_write_buf_rs)(void *buf, size_t len, bool rs)
 {
-#if !PIO_USE_DMA
     i80_wait_idle(g_pio, g_sm);
-#endif
 
     i80_set_rs_cs(rs, 0);
 
@@ -99,10 +97,6 @@ int __time_critical_func(i80_write_buf_rs)(void *buf, size_t len, bool rs)
     i80_write_pio8(g_pio, g_sm, buf, len);
 #elif TFT_PIN_DB_COUNT == 16
     i80_write_pio16(g_pio, g_sm, buf, len);
-#endif
-
-#if !PIO_USE_DMA
-    i80_wait_idle(g_pio, g_sm);
 #endif
 
     i80_set_rs_cs(rs, 1);
@@ -134,3 +128,4 @@ int i80_pio_init(uint8_t db_base, uint8_t db_count, uint8_t pin_wr)
 
     return 0;
 }
+
