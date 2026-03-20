@@ -45,8 +45,8 @@ set(TFT_PIN_BLK 28)
 # TFT backlight behavior, 0 : active low, 1 : active high
 set(TFT_BLK_ACTIVE_HIGH 1)
 
-set(TFT_HOR_RES   480)
-set(TFT_VER_RES   272)
+set(TFT_HOR_RES   272)
+set(TFT_VER_RES   480)
 
 # Rotation configuration
 set(TFT_ROTATION 1)  # 0: normal, 1: 90 degree, 2: 180 degree, 3: 270 degree
