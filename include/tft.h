@@ -158,16 +158,23 @@ extern int tft_fill_color(u16 color);
     #if DISP_OVER_PIO
         extern int i80_pio_init(uint8_t db_base, uint8_t db_count, uint8_t pin_wr);
         extern int i80_write_buf_rs(void *buf, size_t len, bool rs);
+        extern void i80_write_buf_rs_async(void *buf, size_t len, bool rs);
+        extern void i80_write_sync(void);
         #define write_buf_dc(p, b, l, r) i80_write_buf_rs(b, l, r)
+        #define write_buf_dc_async(p, b, l, r) i80_write_buf_rs_async(b, l, r)
+        #define write_buf_dc_sync() i80_write_sync()
     #else
         extern void fbtft_write_gpio16_wr_rs(struct tft_priv *priv, void *buf, size_t len, bool rs);
         #define write_buf_dc(p, b, l, r) fbtft_write_gpio16_wr_rs(p, b, l, r)
+        #define write_buf_dc_async(p, b, l, r) fbtft_write_gpio16_wr_rs(p, b, l, r)
+        #define write_buf_dc_sync()
     #endif
 #elif TFT_BUS_TYPE == TFT_BUS_TYPE_I2C
     #error "I2C bus type not implemented yet!"
 #endif
 
 extern void tft_video_flush(int xs, int ys, int xe, int ye, void *vmem, uint32_t len);
+
 extern void tft_async_video_push(struct video_frame *vf);
 
 extern void tft_write_cmd(struct tft_priv *priv, u8 cmd);
