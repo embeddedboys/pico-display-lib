@@ -250,6 +250,33 @@ void tft_video_flush(int xs, int ys, int xe, int ye, void *vmem, uint32_t len)
     xTaskToNotify = NULL;
 }
 
+/*
+ * Asynchronous counterpart of tft_video_flush(): the address window is still
+ * programmed synchronously (it is a handful of command bytes), but the pixel
+ * data is handed to the bus with write_buf_dc_async(), which returns while the
+ * transfer is still running. The caller must call tft_async_video_wait()
+ * before reusing vmem or before the frame counts as finished.
+ *
+ * tft_video_flush() keeps its original synchronous behaviour.
+ */
+void tft_async_video_flush(int xs, int ys, int xe, int ye, void *vmem, uint32_t len)
+{
+    g_priv.tftops->set_addr_win(&g_priv, xs, ys, xe, ye);
+
+#if TFT_COLOR_16_SWAP
+    u16 *p = (u16 *)vmem;
+    for (size_t i = 0; i < len / 2; i++)
+        p[i] = (p[i] << 8) | (p[i] >> 8);
+#endif
+
+    write_buf_dc_async(&g_priv, vmem, len, 1);
+}
+
+void tft_async_video_wait(void)
+{
+    write_buf_dc_sync();
+}
+
 portTASK_FUNCTION(video_flush_task, pvParameters)
 {
     const TickType_t xMaxBlockTime = pdMS_TO_TICKS( 100 );

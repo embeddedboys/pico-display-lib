@@ -175,6 +175,22 @@ extern int tft_fill_color(u16 color);
 
 extern void tft_video_flush(int xs, int ys, int xe, int ye, void *vmem, uint32_t len);
 
+/*
+ * Asynchronous flush: queues one rectangle and returns as soon as its data
+ * transfer is running, so the caller can prepare the next buffer meanwhile.
+ *
+ * The transfer is only guaranteed to have finished once tft_async_video_wait()
+ * returns -- or when the next flush starts, which completes the pending one
+ * first. The caller must therefore not reuse `vmem` until then. With a
+ * ping-pong buffer pair that is automatic: by the time a buffer comes round
+ * again, the transfer that used it has been completed by the intervening
+ * flush.
+ *
+ * tft_video_flush() is unaffected and remains fully synchronous.
+ */
+extern void tft_async_video_flush(int xs, int ys, int xe, int ye, void *vmem, uint32_t len);
+extern void tft_async_video_wait(void);
+
 extern void tft_async_video_push(struct video_frame *vf);
 
 extern void tft_write_cmd(struct tft_priv *priv, u8 cmd);
