@@ -95,7 +95,12 @@
 #define configUSE_TIMERS                        1
 #define configTIMER_TASK_PRIORITY               ( configMAX_PRIORITIES - 1 )
 #define configTIMER_QUEUE_LENGTH                10
-#define configTIMER_TASK_STACK_DEPTH            1024
+/* 256 words = 1 KB.  Nothing in this library or in the firmware creates a
+ * software timer (the kernel task exists only because configUSE_TIMERS is 1),
+ * so the old 1024 words only wasted 3 KB of the heap task.  Measured idle
+ * usage of the timer task is 152 B; raise this again before putting real work
+ * into a timer callback. */
+#define configTIMER_TASK_STACK_DEPTH            256
 
 /* Interrupt nesting behaviour configuration. */
 /*
