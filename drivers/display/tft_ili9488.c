@@ -82,37 +82,6 @@ static int tft_ili9488_init_display(struct tft_priv *priv)
     return 0;
 }
 
-#define TX_BUF_SIZE (9216)
-#define TX_ARRAY_SIZE (TX_BUF_SIZE / 3)
-u8 tx_buf[TX_BUF_SIZE];
-static void tft_ili9488_video_sync(struct tft_priv *priv, int xs, int ys, int xe, int ye, void *vmem, size_t len)
-{
-    u16 *vmem16 = (u16 *)vmem;
-    size_t remain = len / 2;
-    static size_t to_send;
-    u16 color;
-
-    // pr_debug("video sync: xs=%d, ys=%d, xe=%d, ye=%d, len=%d\n", xs, ys, xe, ye, len);
-    priv->tftops->set_addr_win(priv, xs, ys, xe, ye);
-
-    while (remain) {
-        to_send = MIN(remain, TX_ARRAY_SIZE);
-
-        for (int i = 0, j = 0; j < MIN(remain, TX_ARRAY_SIZE); i+=3, j++) {
-            color = vmem16[j] << 8 | vmem16[j] >> 8;
-            tx_buf[i]   = (color >> 8) & 0xF8;
-            tx_buf[i+1] = (color >> 3) & 0xFC;
-            tx_buf[i+2] = (color << 3);
-        }
-
-        write_buf_dc(priv, tx_buf, to_send * 3, 1);
-
-        remain -= to_send;
-        vmem16 += to_send;
-    }
-
-}
-
 static int tft_ili9488_set_dir(struct tft_priv *priv, u8 dir)
 {
     printf("setting display rotation to %d\n", dir);
@@ -146,7 +115,6 @@ static struct tft_display ili9488 = {
     .tftops = {
 #if TFT_BUS_TYPE == TFT_BUS_TYPE_SPI
         .write_reg = tft_write_reg8,
-        .video_sync = tft_ili9488_video_sync,
 #elif TFT_BUS_TYPE == TFT_BUS_TYPE_I80
 
 #if TFT_PIN_DB_COUNT == 8

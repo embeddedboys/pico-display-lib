@@ -68,6 +68,9 @@ struct tft_display {
     struct tft_ops          tftops;
 };
 
+/* Register staging buffer, previously malloc()ed in tft_probe(). */
+#define TFT_REG_BUF_SIZE 64
+
 struct tft_priv {
     u8                      *buf;
     struct {
@@ -99,16 +102,13 @@ struct tft_priv {
     /* device specific */
     struct tft_display    *display;
     struct tft_ops        *tftops;
-} __attribute__((__aligned__(4)));
 
-struct video_frame {
-    int xs;
-    int ys;
-    int xe;
-    int ye;
-    void *vmem;
-    size_t len;
-};
+    /* Backing storage for `buf` and `tftops` above: both are fixed size and
+     * live as long as the driver, so they no longer need to be heap allocated
+     * (tft_probe() used to malloc() them). */
+    u8                    reg_buf[TFT_REG_BUF_SIZE];
+    struct tft_ops        ops;
+} __attribute__((__aligned__(4)));
 
 #undef BIT
 #define BIT(nr)			(1UL << (nr))
@@ -122,7 +122,6 @@ struct video_frame {
 #define FH  BIT(1)
 #define FV  BIT(0)
 
-#define TFT_REG_BUF_SIZE 64
 #define TFT_TX_BUF_SIZE 2048
 #define TFT_X_RES TFT_HOR_RES
 #define TFT_Y_RES TFT_VER_RES
@@ -191,8 +190,6 @@ extern void tft_video_flush(int xs, int ys, int xe, int ye, void *vmem, uint32_t
 extern void tft_async_video_flush(int xs, int ys, int xe, int ye, void *vmem, uint32_t len);
 extern void tft_async_video_wait(void);
 
-extern void tft_async_video_push(struct video_frame *vf);
-
 extern void tft_write_cmd(struct tft_priv *priv, u8 cmd);
 extern void tft_write_data(struct tft_priv *priv, u8 data);
 
@@ -208,8 +205,5 @@ extern void tft_write_reg16(struct tft_priv *priv, int len, ...);
 #define write_reg(priv, ...) \
     priv->tftops->write_reg(priv, NUMARGS(__VA_ARGS__), __VA_ARGS__)
 
-extern u32 frame_counter;
-extern QueueHandle_t xToFlushQueue;
-extern portTASK_FUNCTION(video_flush_task, pvParameters);
 
 #endif

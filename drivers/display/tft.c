@@ -23,6 +23,7 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 
 #include "pico/time.h"
 #include "pico/stdio.h"
@@ -43,9 +44,6 @@
 #define pr_debug_nt(...)
 
 static struct tft_priv g_priv;
-
-static TaskHandle_t xTaskToNotify = NULL;
-static const UBaseType_t XArrayIndex = 1;
 
 #if TFT_BUS_TYPE == TFT_BUS_TYPE_SPI
 void tft_spi_write_buf_dc(struct tft_priv *priv, void *buf, size_t len, bool dc)
@@ -143,8 +141,9 @@ void func(struct tft_priv *priv, int len, ...)  \
     \
     pr_debug_nt(" val :"); \
     for (i = 0; i < len; i++) { \
+        *buf = (reg_type)va_arg(args, unsigned int); \
         pr_debug_nt(" 0x%02x", *buf); \
-        *buf++ = (reg_type)va_arg(args, unsigned int); \
+        buf++; \
     }   \
     pr_debug_nt("\n"); \
     \
@@ -206,16 +205,29 @@ static void inline tft_set_addr_win(struct tft_priv *priv, int xs, int ys, int x
 
 static int tft_clear(struct tft_priv *priv, u16 clear)
 {
+    /* One bus write per chunk; the previous version issued a separate blocking
+     * transfer per pixel (153600 of them for a full 480x320 screen). */
+    static u16 chunk[480];
     u32 width = priv->display->xres;
     u32 height = priv->display->yres;
-    int i;
+    u32 left = width * height;
+    u32 i;
 
     pr_debug("clearing screen (%d x %d) with color 0x%x\n", width, height, clear);
 
+#if TFT_COLOR_16_SWAP
+    clear = (u16)((clear << 8) | (clear >> 8));
+#endif
+    for (i = 0; i < ARRAY_SIZE(chunk); i++)
+        chunk[i] = clear;
+
     priv->tftops->set_addr_win(priv, 0, 0, width - 1, height - 1);
 
-    for (i = 0; i < width * height; i++)
-        write_buf_dc(priv, &clear, sizeof(u16), 1);
+    while (left) {
+        u32 n = MIN(left, (u32)ARRAY_SIZE(chunk));
+        write_buf_dc(priv, chunk, n * sizeof(u16), 1);
+        left -= n;
+    }
 
     return 0;
 }
@@ -241,13 +253,7 @@ static void tft_video_sync(struct tft_priv *priv, int xs, int ys, int xe, int ye
 
 void tft_video_flush(int xs, int ys, int xe, int ye, void *vmem, uint32_t len)
 {
-    xTaskToNotify = xTaskGetCurrentTaskHandle();
-
     g_priv.tftops->video_sync(&g_priv, xs, ys, xe, ye, vmem, len);
-
-    xTaskNotifyGiveIndexed(xTaskToNotify, XArrayIndex);
-
-    xTaskToNotify = NULL;
 }
 
 /*
@@ -275,39 +281,6 @@ void tft_async_video_flush(int xs, int ys, int xe, int ye, void *vmem, uint32_t 
 void tft_async_video_wait(void)
 {
     write_buf_dc_sync();
-}
-
-portTASK_FUNCTION(video_flush_task, pvParameters)
-{
-    const TickType_t xMaxBlockTime = pdMS_TO_TICKS( 100 );
-    uint32_t ulNotificationValue;
-    struct video_frame vf;
-
-    for (;;) {
-        /* if lvgl request to draw */
-        if (xQueueReceive(xToFlushQueue, &vf, portMAX_DELAY)) {
-            // pr_debug("Received video frame to flush\n");
-            tft_video_flush(vf.xs, vf.ys, vf.xe, vf.ye, vf.vmem, vf.len);
-
-            /* waiting for notification */
-            ulNotificationValue = ulTaskNotifyTakeIndexed(XArrayIndex, pdTRUE, xMaxBlockTime);
-            // pr_debug("Received notification, val : %d\n", ulNotificationValue);
-
-            if (ulNotificationValue > 0) {
-                /* Notification received */
-                frame_counter++;
-            } else {
-                /* timeout */
-            }
-        }
-    }
-
-    vTaskDelete(NULL);
-}
-
-void tft_async_video_push(struct video_frame *vf)
-{
-    xQueueSend(xToFlushQueue, (void *)vf, portMAX_DELAY);
 }
 
 #if TFT_BUS_TYPE == TFT_BUS_TYPE_SPI
@@ -434,17 +407,10 @@ int tft_probe(struct tft_display *display)
     struct tft_priv *priv = &g_priv;
     pr_debug("%s\n", __func__);
 
-    priv->buf = (u8 *)malloc(TFT_REG_BUF_SIZE);
-    if (!priv->buf) {
-        pr_debug("failed to allocate buffer\n");
-        return -1;
-    }
-
-    priv->tftops = (struct tft_ops *)malloc(sizeof(struct tft_ops));
-    if (!priv->tftops) {
-        pr_debug("failed to allocate tftops\n");
-        goto exit_free_priv_buf;
-    }
+    /* Fixed-size, driver-lifetime storage -- no heap needed (see tft.h). */
+    priv->buf = priv->reg_buf;
+    priv->tftops = &priv->ops;
+    memset(priv->tftops, 0, sizeof(*priv->tftops));
 
     priv->display = display;
 
@@ -473,7 +439,7 @@ int tft_probe(struct tft_display *display)
         priv->txbuf.buf = (u8 *)malloc(TFT_TX_BUF_SIZE);
         if (!priv->txbuf.buf) {
             pr_debug("failed to allocate tx buffer\n");
-            goto exit_free_tftops;
+            return -1;
         }
         priv->txbuf.len = TFT_TX_BUF_SIZE;
     }
@@ -483,10 +449,4 @@ int tft_probe(struct tft_display *display)
     tft_hw_init(priv);
 
     return 0;
-
-exit_free_tftops:
-    free(priv->tftops);
-exit_free_priv_buf:
-    free(priv->buf);
-    return -1;
 }
