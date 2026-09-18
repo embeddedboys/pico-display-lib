@@ -1,3 +1,6 @@
+// Kept in the style of the FreeRTOS template it comes from: the option values
+// are aligned into a column, which the kernel .clang-format would take apart.
+// clang-format off
 /*
  * FreeRTOS V202111.00
  * Copyright (C) 2020 Amazon.com, Inc. or its affiliates.  All Rights Reserved.
