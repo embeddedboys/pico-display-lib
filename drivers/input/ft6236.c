@@ -68,31 +68,38 @@ static uint8_t ft6236_read_reg(struct indev_priv *priv, uint8_t reg)
     return val;
 }
 
+/*
+ * XH/YH carry the coordinate in bits [3:0] only: bits [7:6] are the event flag
+ * and bits [5:4] the touch id, so both registers have to be masked before the
+ * 12-bit coordinate is assembled.  Masking XH with 0x1f (keeping the touch id
+ * bit) put a spurious 0x1000 into every sample of a gesture -- measured on the
+ * panel as x jumping from 193 to 4136 mid-drag and staying 4096 too high for
+ * the rest of it (notes/usb-protocol.md in Pico-USB-Display has the capture).
+ */
+#define FT_TOUCH_COORD_MASK 0x0f
+
+/* Raw controller reads: the axis order, the rotation's inversion, the offset
+ * and the clamp are the core's job (drivers/input/indev.c). */
 static uint16_t ft6236_read_x(struct indev_priv *priv)
 {
-    uint8_t val_h = read_reg(priv, FT_REG_TOUCH1_XH) & 0x1f;  /* the MSB is always high, but it shouldn't */
+    uint8_t val_h = read_reg(priv, FT_REG_TOUCH1_XH) & FT_TOUCH_COORD_MASK;
     uint8_t val_l = read_reg(priv, FT_REG_TOUCH1_XL);
-    uint16_t val = (val_h << 8) | val_l;
-    
-    if (priv->invert_x)
-        return (priv->x_res - val);
 
-    return val;
+    return (val_h << 8) | val_l;
 }
 
 static uint16_t ft6236_read_y(struct indev_priv *priv)
 {
-    uint8_t val_h = read_reg(priv, FT_REG_TOUCH1_YH);
+    uint8_t val_h = read_reg(priv, FT_REG_TOUCH1_YH) & FT_TOUCH_COORD_MASK;
     uint8_t val_l = read_reg(priv, FT_REG_TOUCH1_YL);
-    if (priv->invert_y)
-        return (priv->y_res - ((val_h << 8) | val_l));
-    else
-        return ((val_h << 8) | val_l);
+
+    return (val_h << 8) | val_l;
 }
 
 static bool ft6236_is_pressed(struct indev_priv *priv)
 {
-    uint8_t val = read_reg(priv, FT_REG_TD_STATUS);
+    /* bits [3:0] are the number of touch points, the rest is reserved */
+    uint8_t val = read_reg(priv, FT_REG_TD_STATUS) & 0x0f;
     return val;
 }
 
@@ -120,7 +127,7 @@ static void ft6236_hw_init(struct indev_priv *priv)
 
     pr_debug("chip reset\n");
     priv->ops->reset(priv);
-    priv->ops->set_dir(priv, INDEV_DIR_SWITCH_XY | INDEV_DIR_INVERT_Y);
+    /* the direction comes from the display rotation (indev_probe) */
 
     // i2c_bus_scan(priv->spec->i2c.master);
 

@@ -89,45 +89,25 @@ static uint8_t tsc2007_read_reg(struct indev_priv *priv, uint8_t reg)
     return val;
 }
 
+/*
+ * Resistive panel: the ADC reading is scaled to the panel here (only the
+ * driver knows spec->resolution); the axis order, the inversion, the offset and
+ * the clamp stay in the core (indev.c), like every other driver.
+ */
 uint16_t tsc2007_read_x(struct indev_priv *priv)
 {
     uint8_t val = read_reg(priv, TSC2007_CMD_READ_X);
-    u16 this_x = 0;
 
-    if (priv->invert_x)
-        this_x = (priv->x_res - (val * priv->x_res) / (1 << priv->spec->resolution));
-    else
-        this_x = (val * priv->x_res) / (1 << priv->spec->resolution);
-
-    pr_debug("x : %d, sc_x : %f\n", this_x, priv->sc_x);
-    this_x += priv->spec->x_offs;
-    this_x *= priv->sc_x;
-    pr_debug("x : %d, sc_x : %f\n", this_x, priv->sc_x);
-
-    return this_x;
+    return (val * priv->x_res) / (1 << priv->spec->resolution);
 }
 
 uint16_t tsc2007_read_y(struct indev_priv *priv)
 {
     uint8_t val = read_reg(priv, TSC2007_CMD_READ_Y);
-    u16 this_y = 0;
 
-    if (priv->invert_y)
-        this_y = (priv->y_res - (val * priv->y_res) / (1 << priv->spec->resolution));
-    else
-        this_y = (val * priv->y_res) / (1 << priv->spec->resolution);
-
-    pr_debug("y : %d, sc_y : %f\n", this_y, priv->sc_y);
-    this_y += priv->spec->y_offs;
-    this_y *= priv->sc_y;
-    pr_debug("y : %d, sc_y : %f\n", this_y, priv->sc_y);
-
-    return this_y;
+    return (val * priv->y_res) / (1 << priv->spec->resolution);
 }
 
-// #define REAL_X(x) ((x * priv->y_res) / (1 << priv->spec->resolution))
-// #define REAL_Y(y) ((y * priv->x_res) / (1 << priv->spec->resolution))
-// #define TEST(v) (v | (0x1 << 2))
 bool tsc2007_is_pressed(struct indev_priv *priv)
 {
     // printf("X- : %d  Y- : %d\n", REAL_X(read_reg(priv, TEST(0xA0))), REAL_Y(read_reg(priv, TEST(0xB0))));

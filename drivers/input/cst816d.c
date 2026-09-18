@@ -74,7 +74,7 @@ static void cst816d_hw_init(struct indev_priv *priv)
 
     pr_debug("chip reset\n");
     priv->ops->reset(priv);
-    priv->ops->set_dir(priv, INDEV_DIR_SWITCH_XY | INDEV_DIR_INVERT_Y);
+    /* the direction comes from the display rotation (indev_probe) */
 
     i2c_bus_scan(priv->spec->i2c.master);
 }

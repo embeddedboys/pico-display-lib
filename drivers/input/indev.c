@@ -42,74 +42,91 @@ static void swap_float(float *a, float *b)
     *b = temp;
 }
 
-static void __indev_set_dir(struct indev_priv *priv, indev_direction_t dir)
+/*
+ * Touch pipeline, in one place:
+ *
+ *   controller -> axis order -> inversion -> board offset -> clamp
+ *
+ * The controller is expected to report in panel units (every spec in this
+ * library sets x_res/y_res to the panel dimensions), so there is no scaling
+ * step; what a rotation changes is only which controller axis feeds which
+ * panel axis and whether it is inverted.  Recomputing the whole thing from
+ * `dir` on every read is what makes indev_set_dir() idempotent -- the old
+ * version swapped the ops, the resolutions and the spec fields in place, so
+ * calling it twice put the axes back the way they started.
+ */
+indev_direction_t indev_dir_for_rotation(u8 rotation)
 {
-    priv->dir = dir;
-
-    if (dir & INDEV_DIR_INVERT_X) {
-        priv->invert_x = true;
-    } else {
-        priv->invert_x = false;
-    }
-
-    if (dir & INDEV_DIR_INVERT_Y) {
-        priv->invert_y = true;
-    } else {
-        priv->invert_y = false;
-    }
-
-    if (dir & INDEV_DIR_SWITCH_XY) {
-        priv->switch_xy = true;
-
-        priv->ops->read_x = priv->spec->ops.read_y;
-        priv->ops->read_y = priv->spec->ops.read_x;
-
-        bool invert_tmp = priv->invert_x;
-        priv->invert_x = priv->invert_y;
-        priv->invert_y = invert_tmp;
-
-        u16 offs_tmp = priv->spec->x_offs;
-        priv->spec->x_offs = priv->spec->y_offs;
-        priv->spec->y_offs = offs_tmp;
-
-        swap_float(&priv->sc_x, &priv->sc_y);
-
-        u16 res_tmp = priv->x_res;
-        priv->x_res = priv->y_res;
-        priv->y_res = res_tmp;
-    } else {
-        priv->switch_xy = false;
-
-        priv->ops->read_x = priv->spec->ops.read_x;
-        priv->ops->read_y = priv->spec->ops.read_y;
+    switch (rotation) {
+    case TFT_ROTATE_90:
+        /* anchored on this module (320x480 native, driven at 480x320): panel
+         * x comes from the controller's y, panel y from its inverted x */
+        return INDEV_DIR_SWITCH_XY | INDEV_DIR_INVERT_Y;
+    case TFT_ROTATE_180:
+        return INDEV_DIR_INVERT_X | INDEV_DIR_INVERT_Y;
+    case TFT_ROTATE_270:
+        return INDEV_DIR_SWITCH_XY | INDEV_DIR_INVERT_X;
+    case TFT_ROTATE_0:
+    default:
+        return INDEV_DIR_NOP;
     }
 }
 
 void indev_set_dir(indev_direction_t dir)
 {
-    __indev_set_dir(&g_indev_priv, dir);
+    struct indev_priv *priv = &g_indev_priv;
+
+    priv->dir = dir;
+    priv->switch_xy = (dir & INDEV_DIR_SWITCH_XY) != 0;
+    priv->invert_x = (dir & INDEV_DIR_INVERT_X) != 0;
+    priv->invert_y = (dir & INDEV_DIR_INVERT_Y) != 0;
 }
 
-static u16 __indev_read_x(struct indev_priv *priv)
+/* the ops table passes the private struct, the public API does not */
+static void indev_ops_set_dir(struct indev_priv *priv, indev_direction_t dir)
 {
-    if (priv->ops->read_x)
-        return priv->ops->read_x(priv);
+    (void)priv;
+    indev_set_dir(dir);
+}
+
+/* One panel axis: `axis` 0 = x (panel width), 1 = y (panel height). */
+static u16 indev_axis(struct indev_priv *priv, int axis)
+{
+    u16 max = (axis == 0) ? (TFT_HOR_RES - 1) : (TFT_VER_RES - 1);
+    int16_t offs = (axis == 0) ? priv->spec->x_offs : priv->spec->y_offs;
+    bool invert = (axis == 0) ? priv->invert_x : priv->invert_y;
+    u16 v;
+
+    if (axis == 0)
+        v = priv->switch_xy ? priv->ops->read_y(priv)
+                            : priv->ops->read_x(priv);
+    else
+        v = priv->switch_xy ? priv->ops->read_x(priv)
+                            : priv->ops->read_y(priv);
+
+    /* a controller can report one past the last row/column of its active
+     * area, and a finger on the bezel can push it further out */
+    if (v > max)
+        v = max;
+
+    if (invert)
+        v = max - v;
+
+    v = (u16)((int32_t)v + offs);
+    if (v > max)
+        v = max;
+
+    return v;
 }
 
 u16 indev_read_x(void)
 {
-    return __indev_read_x(&g_indev_priv);
-}
-
-static u16 __indev_read_y(struct indev_priv *priv)
-{
-    if (priv->ops->read_y)
-        return priv->ops->read_y(priv);
+    return indev_axis(&g_indev_priv, 0);
 }
 
 u16 indev_read_y(void)
 {
-    return __indev_read_y(&g_indev_priv);
+    return indev_axis(&g_indev_priv, 1);
 }
 
 static void indev_reset(struct indev_priv *priv)
@@ -176,25 +193,21 @@ int indev_probe(struct indev_spec *spec)
         return -1;
     }
 
+    /* panel dimensions: what the transform clamps to.  sc_x/sc_y are kept for
+     * compatibility but the transform works in panel units (see indev_axis) */
     priv->x_res = TFT_HOR_RES;
     priv->y_res = TFT_VER_RES;
-
-    priv->invert_x = false;
-    priv->invert_y = false;
+    priv->sc_x = 1.0f;
+    priv->sc_y = 1.0f;
 
     priv->ops->reset = indev_reset;
-    priv->ops->set_dir = __indev_set_dir;
+    priv->ops->set_dir = indev_ops_set_dir;
 
-    float tft_x = TFT_HOR_RES;
-    float tft_y = TFT_VER_RES;
-
-    float touch_x = priv->spec->x_res;
-    float touch_y = priv->spec->y_res;
-
-    priv->sc_x = (float)(tft_x / touch_x);
-    priv->sc_y = (float)(tft_y / touch_y);
-
-    pr_debug("sc_x : %f, sc_y : %f", priv->sc_x, priv->sc_y);
+    /* touch follows the display rotation unless the application says
+     * otherwise after indev_driver_init() */
+    indev_set_dir(indev_dir_for_rotation(TFT_ROTATION));
+    pr_debug("%s, rotation %d -> dir 0x%02x", __func__, TFT_ROTATION,
+             priv->dir);
 
     indev_merge_ops(priv->ops, &spec->ops);
 

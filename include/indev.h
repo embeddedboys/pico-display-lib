@@ -27,6 +27,8 @@
 #include "hardware/i2c.h"
 // #include "hardware/spi.h"
 
+#include "config.h"
+
 #define TOUCH_X_RES TFT_HOR_RES
 #define TOUCH_Y_RES TFT_VER_RES
 
@@ -56,6 +58,13 @@ enum {
     INDEV_TYPE_KEYPAD  = 0x01,
 };
 
+/*
+ * How the touch controller's axes map onto the *panel* axes, for the rotation
+ * the display is being driven at.  This is applied by the core (indev.c), not
+ * by the drivers: a driver's read_x()/read_y() return the controller's own
+ * numbers and must not invert or swap anything themselves, or the transform
+ * ends up half in the driver, half here, and follows nothing.
+ */
 typedef enum {
     INDEV_DIR_NOP       = 0x00,
     INDEV_DIR_INVERT_X  = 0x01,
@@ -137,6 +146,13 @@ struct indev_priv {
 extern int indev_driver_init(void);
 extern int indev_probe(struct indev_spec *spec);
 extern void indev_set_dir(indev_direction_t dir);
+
+/* The direction that makes the touch follow a display rotation
+ * (TFT_ROTATE_0/90/180/270).  indev_probe() applies
+ * indev_dir_for_rotation(TFT_ROTATION) by default, so touch and display agree
+ * without either driver knowing about the other; an application can still
+ * override it with indev_set_dir() afterwards. */
+extern indev_direction_t indev_dir_for_rotation(u8 rotation);
 extern bool indev_is_pressed(void);
 extern u16 indev_read_x(void);
 extern u16 indev_read_y(void);
