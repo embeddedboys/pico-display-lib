@@ -17,6 +17,9 @@
 - 配置式开发。预设了多种 TFT 配置，开箱即用。
 - 基于 Pico SDK 开发
 - 分离设计，总线、屏幕、触摸隔离处理。
+- 运行期可改朝向：`tft_set_rotation()` 只写一次 MADCTL 并交换逻辑几何（`xres/yres`），
+  缓冲区按像素数分配、90 度旋转不改像素总数，所以不需要重算缓冲；触摸方向由调用方跟着调
+  `indev_set_dir(indev_dir_for_rotation(rot))`。
 
 ## 快速上手
 

@@ -41,7 +41,10 @@ lib/FreeRTOS-Kernel         — 子模块
   ILI9481 保留是因为它 init 就是 `0x66`。
 - **触摸坐标只有一处变换**：`ft6236`/`gt911`/`cst816d`/`tsc2007` 只返回**控制器原始值**，
   轴序/反向/偏移/钳位全在 `indev.c` 的 `indev_dir_for_rotation(TFT_ROTATION)` 里做
-  （触摸和显示共用同一个 `TFT_ROTATION`）。不要把 `set_dir()` 常量塞回驱动：
+  （触摸和显示共用同一个 `TFT_ROTATION`）。**运行期改朝向时显示和触摸要成对调**：
+  `tft_set_rotation()` 只动显示（MADCTL + 几何），调用方必须再
+  `indev_set_dir(indev_dir_for_rotation(rot))`，否则触摸会留在旧朝向上。
+  不要把 `set_dir()` 常量塞回驱动：
   旋转会不跟着走，而且调用两次会把轴序转回去。
 - **寄存器读写不每次分配堆**：`tft_priv` 里有固定的 `reg_buf` 与 `ops`
   （`tft_probe()` 里 `priv->buf = priv->reg_buf`、`priv->tftops = &priv->ops`），

@@ -135,6 +135,24 @@ extern int tft_probe(struct tft_display *display);
 extern int tft_driver_init();
 extern int tft_fill_color(u16 color);
 
+/*
+ * Runtime rotation.  The panel maps the frame with MADCTL alone
+ * (tft_set_addr_win() passes the window through untouched), so this is one
+ * register write plus updating the geometry `struct tft_display` reports: a
+ * window drawn in the new orientation lands correctly, and callers only have to
+ * size themselves from xres/yres afterwards.  Nothing here or in a caller is
+ * sized by anything but the pixel count, which a 90 degree rotation does not
+ * change -- that is what makes it cheap enough to do while running.
+ *
+ * tft_set_rotation() also has to be paired with indev_set_dir() by whoever owns
+ * the touch panel: the coordinate transform lives in indev.c and follows the
+ * same rotation (see CLAUDE.md).
+ *
+ * Returns 0, or -1 for an out-of-range rotation or before tft_probe().
+ */
+extern int tft_set_rotation(u8 rotation);
+extern u8 tft_get_rotation(void);
+
 #if TFT_BUS_TYPE == TFT_BUS_TYPE_SPI
 
     #if TFT_SPIX == 0

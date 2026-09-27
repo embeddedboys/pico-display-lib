@@ -237,6 +237,39 @@ int tft_fill_color(u16 color)
     return g_priv.tftops->clear(&g_priv, color);
 }
 
+int tft_set_rotation(u8 rotation)
+{
+    struct tft_priv *priv = &g_priv;
+
+    if (!priv->display || !priv->tftops->set_dir || rotation > TFT_ROTATE_270)
+        return -1;
+
+    /* One MADCTL write is the whole rotation: tft_set_addr_win() hands the
+     * logical window straight to the panel, so the address mapping follows
+     * these bits.  The rest is bookkeeping -- the geometry callers read back.
+     * Only 0/180 (even) and 90/270 (odd) differ in whether the frame is turned
+     * on its side, so comparing the parity against the build-time rotation is
+     * what decides the swap; deriving it from the build values rather than from
+     * the current ones is what makes repeated calls land on the same answer. */
+    priv->tftops->set_dir(priv, rotation);
+    priv->display->rotate = rotation;
+
+    if ((rotation ^ TFT_ROTATION) & 1) {
+        priv->display->xres = TFT_Y_RES;
+        priv->display->yres = TFT_X_RES;
+    } else {
+        priv->display->xres = TFT_X_RES;
+        priv->display->yres = TFT_Y_RES;
+    }
+
+    return 0;
+}
+
+u8 tft_get_rotation(void)
+{
+    return g_priv.display ? (u8)g_priv.display->rotate : (u8)TFT_ROTATION;
+}
+
 static void tft_video_sync(struct tft_priv *priv, int xs, int ys, int xe, int ye, void *vmem, size_t len)
 {
     // pr_debug("video sync: xs=%d, ys=%d, xe=%d, ye=%d, len=%d\n", xs, ys, xe, ye, len);
