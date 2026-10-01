@@ -17,7 +17,7 @@
 ## 仓库结构
 
 ```
-CMakeLists.txt              — 静态库 pico-display-lib（Pico SDK + FreeRTOS）
+CMakeLists.txt              — 静态库 pico-display-lib（Pico SDK 驱动与显示接口）
 configs/*.cmake             — 每个屏幕型号一份预置配置
 drivers/
   bus/                      — SPI / i80(PIO) / I8080 GPIO 总线
@@ -25,7 +25,6 @@ drivers/
   input/                    — 触摸驱动 + indev.c（坐标变换的唯一出处）
   backlight/  clk/  uart/
 include/                    — 对外头文件（tft.h / indev.h / config.h / debug.h ...）
-lib/FreeRTOS-Kernel         — 子模块
 ```
 
 - **配置式开发**：在根 `CMakeLists.txt` 里取消注释一行

@@ -28,10 +28,6 @@
 #include "pico/stdlib.h"
 #include "hardware/gpio.h"
 
-#include "FreeRTOS.h"
-#include "task.h"
-#include "semphr.h"
-
 #include "config.h"
 
 struct tft_priv;
