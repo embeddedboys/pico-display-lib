@@ -70,7 +70,10 @@ static int tft_st7735_init_display(struct tft_priv *priv)
 
     write_reg(priv, 0xFC, 0x8C);
     write_reg(priv, 0x3A, 0x05);
-    write_reg(priv, 0x36, 0xC8);
+    /* 0xC0 = MY|MX; bit 3 (BGR) comes from the config, since red/blue order is
+     * a property of the glass.  It used to be hardcoded set, which showed as
+     * red and blue exchanged on panels that want it clear. */
+    write_reg(priv, 0x36, 0xC0 | (TFT_BGR ? (1 << 3) : 0));
     write_reg(priv, 0x29);
 #endif
 }

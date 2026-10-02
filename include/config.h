@@ -55,6 +55,16 @@ enum {
     TFT_ROTATE_270  = 0x03,
 };
 
+/*
+ * MADCTL bit 3: which of red and blue the panel puts first (the "BGR" bit).
+ * Most of these modules are wired BGR, which is why the default is 1, but it is
+ * a property of the glass rather than of the controller -- a panel driven with
+ * the wrong value shows red and blue exchanged and everything else correct.
+ */
+#ifndef TFT_BGR
+    #define TFT_BGR 1
+#endif
+
 #ifndef TFT_COLOR_16_SWAP
     #define TFT_COLOR_16_SWAP 0
 #endif
