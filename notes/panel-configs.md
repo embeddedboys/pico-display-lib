@@ -17,7 +17,7 @@
 | --- | --- | --- |
 | 红蓝互换，其它颜色都对 | MADCTL bit 3（BGR）与玻璃不符 | `TFT_BGR` |
 | 每个颜色都像"另一个颜色"，伴随机理图案改变 | 字节序 | `TFT_COLOR_16_SWAP` |
-| 整个画面转了 90° | 初始化序列变体的 MV 位 | 换 `TFT_MODEL_*` |
+| 整个画面转了 90° | MADCTL bit 5（轴交换） | `TFT_MADCTL_MV`（默认值随序列） |
 | 画面正常但顶部/左侧有一条未刷到的边 | GRAM 偏移 | `TFT_X_OFFS` / `TFT_Y_OFFS` |
 | 满屏噪点但规律 | 通常**是对的**——量测用的填充图样 | — |
 
@@ -40,6 +40,7 @@
 | GRAM 偏移 | `TFT_X_OFFS`、`TFT_Y_OFFS` | ST7735 的 GRAM 常比可视区大 |
 | 字节序 | `TFT_COLOR_16_SWAP` | 8 位总线上 RGB565 先发高字节 |
 | 初始化变体 | `TFT_MODEL_*` | **名字有误导性**，见下 |
+| 轴交换（横/纵） | `TFT_MADCTL_MV` | MADCTL bit 5。默认值由初始化序列给（GENERIC=1、MD144=0），设了就以你为准 |
 | 分辨率、朝向 | `TFT_HOR_RES`、`TFT_VER_RES`、`TFT_ROTATION` | 朝向还影响触摸 |
 
 ### 这块板的接线 → 配置变量

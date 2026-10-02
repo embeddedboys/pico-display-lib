@@ -23,18 +23,19 @@
 
 ## 快速上手
 
-### 1. 启用对应的屏幕型号配置文件
+### 1. 选择屏幕型号
 
-假设你有一个通用的 ST7789V 屏幕模块。 打开工程根目录的 `CMakeLists.txt` 文件，找到
-型号选择部分，参考如下位置：
-```cmake
-# select the suitable config file
-include(${CMAKE_CURRENT_LIST_DIR}/configs/generic-st7789v.cmake)
-...
-# include(${CMAKE_CURRENT_LIST_DIR}/configs/pico_dm_qd3503728.cmake)
-...
-# include(${CMAKE_CURRENT_LIST_DIR}/configs/pico_dm_ep4309n.cmake)
+面板配置由 CMake 变量 `PUD_CONFIG` 选择，取值是 `configs/` 下某个文件名去掉 `.cmake`：
+
+```bash
+cmake -S . -B build -DPICO_BOARD=pico2 -DPUD_CONFIG=generic-st7789v
 ```
+
+名字写错或者没给，configure 阶段就会指名报错——不会静默地用上别的屏。可用名字就是
+`configs/` 目录下的那些。
+
+> 本仓库以前是在根 `CMakeLists.txt` 里取消注释一行 `include(configs/...)` 来选屏。那会
+> 弄脏工作树、也容易被误提交，已经删掉，改由 `PUD_CONFIG` 驱动。
 
 ### 2. 按需要修改配置文件中的设置
 
