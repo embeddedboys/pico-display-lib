@@ -1,5 +1,9 @@
-target_compile_definitions(${LIBRARY_NAME} PUBLIC DEFAULT_SYS_CLK_KHZ=${SYS_CLK_KHZ})
-target_compile_definitions(${LIBRARY_NAME} PUBLIC DEFAULT_PERI_CLK_KHZ=${PERI_CLK_KHZ})
+# The C side sees these under DEFAULT_* names; the configs set SYS_CLK_KHZ and
+# PERI_CLK_KHZ (drivers/clk/config.cmake picks them per board/profile).
+panel_emit_value(
+    SYS_CLK_KHZ=DEFAULT_SYS_CLK_KHZ
+    PERI_CLK_KHZ=DEFAULT_PERI_CLK_KHZ
+)
 
 # Note: If you are using a NOR flash like "w25q16". Just keep the following content.
 # The maximum speed of "w25q16" is 133MHz, However, the clock speed of XIP QSPI is divided from "sys_clk".
@@ -24,4 +28,4 @@ endif()
 math(EXPR FLASH_CLK_KHZ "${SYS_CLK_KHZ} / ${PICO_FLASH_SPI_CLKDIV}")
 message(STATUS "XIP flash clock: ${FLASH_CLK_KHZ} KHz (clk_sys ${SYS_CLK_KHZ} KHz / PICO_FLASH_SPI_CLKDIV ${PICO_FLASH_SPI_CLKDIV})")
 target_compile_definitions(bs2_default PRIVATE PICO_FLASH_SPI_CLKDIV=${PICO_FLASH_SPI_CLKDIV})
-target_compile_definitions(${LIBRARY_NAME} PUBLIC FLASH_CLK_KHZ=${FLASH_CLK_KHZ})
+panel_emit_value(FLASH_CLK_KHZ)

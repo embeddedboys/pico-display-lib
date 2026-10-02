@@ -10,30 +10,31 @@ set(LIBRARY_NAME "pico-display-lib")
 
 add_library(${LIBRARY_NAME} STATIC)
 
+# The one place a panel config variable becomes a -D macro, and the one place a
+# missing variable is turned into a configure error instead of a default.
+include(${CMAKE_CURRENT_LIST_DIR}/cmake/panel.cmake)
+
 set(DRIVER_SOURCES
     ""
 )
 
-# select the suitable config file
-# include(${CMAKE_CURRENT_LIST_DIR}/configs/generic-st7789v.cmake)
-# include(${CMAKE_CURRENT_LIST_DIR}/configs/generic-st7305.cmake)
-# include(${CMAKE_CURRENT_LIST_DIR}/configs/generic-st7576.cmake)
-# include(${CMAKE_CURRENT_LIST_DIR}/configs/generic-gc9a01.cmake)
-# include(${CMAKE_CURRENT_LIST_DIR}/configs/generic-gc9a01-8bit.cmake)
-# include(${CMAKE_CURRENT_LIST_DIR}/configs/generic-ssd1306.cmake)
-# include(${CMAKE_CURRENT_LIST_DIR}/configs/generic-ssd1327.cmake)
-# include(${CMAKE_CURRENT_LIST_DIR}/configs/generic-ili9341.cmake)
-# include(${CMAKE_CURRENT_LIST_DIR}/configs/generic-st77916.cmake)
-# include(${CMAKE_CURRENT_LIST_DIR}/configs/wlk1804rctp-14p.cmake)
-# include(${CMAKE_CURRENT_LIST_DIR}/configs/fpc-zh096g1321.cmake)
-# include(${CMAKE_CURRENT_LIST_DIR}/configs/md144_spi_v04.cmake)
-# include(${CMAKE_CURRENT_LIST_DIR}/configs/pico-restouch-lcd-2.8.cmake)
-# include(${CMAKE_CURRENT_LIST_DIR}/configs/pico_dm_qd3503728.cmake)
-# include(${CMAKE_CURRENT_LIST_DIR}/configs/pico_dm_gtm0375hi1t02.cmake)
-# include(${CMAKE_CURRENT_LIST_DIR}/configs/pico_dm_fpc032mra003.cmake)
-# include(${CMAKE_CURRENT_LIST_DIR}/configs/pico_dm_yt350s006.cmake)
-# include(${CMAKE_CURRENT_LIST_DIR}/configs/pico_dm_1p5623.cmake)
-# include(${CMAKE_CURRENT_LIST_DIR}/configs/pico_dm_ep4309n.cmake)
+# The panel is chosen by the PUD_CONFIG cache variable (the firmware passes
+# -DPUD_CONFIG=<name>, see its configs/ symlink into this directory).  This file
+# used to list every config as a commented-out include to be uncommented by hand,
+# which dirtied the working tree and was replaced by PUD_CONFIG -- the list was
+# left behind and is now gone.
+if(PUD_CONFIG)
+    if(NOT EXISTS ${CMAKE_CURRENT_LIST_DIR}/configs/${PUD_CONFIG}.cmake)
+        message(FATAL_ERROR
+            "PUD_CONFIG='${PUD_CONFIG}' has no configs/${PUD_CONFIG}.cmake "
+            "(available: ${CMAKE_CURRENT_LIST_DIR}/configs)")
+    endif()
+    include(${CMAKE_CURRENT_LIST_DIR}/configs/${PUD_CONFIG}.cmake)
+else()
+    message(FATAL_ERROR
+        "PUD_CONFIG is not set: the panel is chosen with -DPUD_CONFIG=<name>, "
+        "see configs/")
+endif()
 
 include(${DRIVERS_DIR}/backlight/config.cmake)
 include(${DRIVERS_DIR}/display/config.cmake)

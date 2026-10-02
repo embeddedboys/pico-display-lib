@@ -3,7 +3,7 @@
 # This software is released under the MIT License.
 # https://opensource.org/licenses/MIT
 
-target_compile_definitions(${LIBRARY_NAME} PUBLIC TFT_BUS_TYPE=${TFT_BUS_TYPE})
+panel_emit_value(TFT_BUS_TYPE)
 
 if(TFT_BUS_TYPE EQUAL 0) # SPI
 
@@ -22,11 +22,8 @@ if(TFT_BUS_TYPE EQUAL 0) # SPI
         hardware_dma
     )
 
-    target_compile_definitions(${LIBRARY_NAME} PUBLIC TFT_PIN_SCL=${TFT_PIN_SCL})
-    target_compile_definitions(${LIBRARY_NAME} PUBLIC TFT_PIN_SDA=${TFT_PIN_SDA})
-    target_compile_definitions(${LIBRARY_NAME} PUBLIC TFT_PIN_RES=${TFT_PIN_RES})
-    target_compile_definitions(${LIBRARY_NAME} PUBLIC TFT_PIN_DC=${TFT_PIN_DC})
-    target_compile_definitions(${LIBRARY_NAME} PUBLIC TFT_PIN_CS=${TFT_PIN_CS})
+    panel_emit_value(TFT_PIN_SCL TFT_PIN_SDA TFT_PIN_RES TFT_PIN_DC TFT_PIN_CS)
+    panel_require(TFT_PIN_SCL TFT_PIN_SDA TFT_PIN_RES TFT_PIN_DC TFT_PIN_CS)
 
 elseif(TFT_BUS_TYPE EQUAL 1) # I8080
 
@@ -46,13 +43,12 @@ elseif(TFT_BUS_TYPE EQUAL 1) # I8080
         hardware_dma
     )
 
-    target_compile_definitions(${LIBRARY_NAME} PUBLIC TFT_PIN_DB_BASE=${TFT_PIN_DB_BASE})
-    target_compile_definitions(${LIBRARY_NAME} PUBLIC TFT_PIN_DB_COUNT=${TFT_PIN_DB_COUNT})
-    target_compile_definitions(${LIBRARY_NAME} PUBLIC TFT_PIN_CS=${TFT_PIN_CS})
-    target_compile_definitions(${LIBRARY_NAME} PUBLIC TFT_PIN_WR=${TFT_PIN_WR})
-    target_compile_definitions(${LIBRARY_NAME} PUBLIC TFT_PIN_RS=${TFT_PIN_RS})
-    target_compile_definitions(${LIBRARY_NAME} PUBLIC TFT_PIN_RES=${TFT_PIN_RES})
+    panel_emit_value(TFT_PIN_DB_BASE TFT_PIN_DB_COUNT TFT_PIN_CS TFT_PIN_WR TFT_PIN_RS TFT_PIN_RES)
+    panel_require(TFT_PIN_DB_BASE TFT_PIN_DB_COUNT TFT_PIN_CS TFT_PIN_WR TFT_PIN_RS TFT_PIN_RES)
 
 else()
-    message(FATAL_ERROR "Invalid TFT bus type!")
+    # The library chooses PIO_LIB in drivers/bus/config.cmake, which runs before
+    # this, so an unusable bus type is already rejected by the time we get here.
+    message(FATAL_ERROR
+        "panel config '${PUD_CONFIG}': TFT_BUS_TYPE '${TFT_BUS_TYPE}' has no driver")
 endif()

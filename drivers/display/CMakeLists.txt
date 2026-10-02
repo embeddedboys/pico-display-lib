@@ -1,5 +1,10 @@
 add_subdirectory(epaper)
 
+panel_require(TFT_HOR_RES TFT_VER_RES TFT_ROTATION TFT_BUS_CLK_KHZ)
+
+# Rotation swaps the axes, so TFT_X_RES/TFT_Y_RES are the *rotated* geometry --
+# which is what the C side means by TFT_HOR_RES/TFT_VER_RES.  The config's own
+# TFT_HOR_RES/TFT_VER_RES stay native; only the macros are swapped.
 if(${TFT_ROTATION} EQUAL 0 OR ${TFT_ROTATION} EQUAL 2)
     set(TFT_X_RES ${TFT_HOR_RES})
     set(TFT_Y_RES ${TFT_VER_RES})
@@ -7,153 +12,56 @@ elseif(${TFT_ROTATION} EQUAL 1 OR ${TFT_ROTATION} EQUAL 3)
     set(TFT_X_RES ${TFT_VER_RES})
     set(TFT_Y_RES ${TFT_HOR_RES})
 else()
-    message(FATAL_ERROR "ERROR: Invalid display rotation")
+    message(FATAL_ERROR
+        "panel config '${PUD_CONFIG}': TFT_ROTATION must be 0..3, got '${TFT_ROTATION}'")
 endif()
 
-message(STATUS "TFT_X_RES: ${TFT_X_RES}")
-message(STATUS "TFT_Y_RES: ${TFT_Y_RES}")
-message(STATUS "TFT rotation: ${TFT_ROTATION}   //0: normal, 1: 90 degree, 2: 180 degree, 3: 270 degree")
+message(STATUS "panel ${PUD_CONFIG}: ${TFT_X_RES}x${TFT_Y_RES}, rotation ${TFT_ROTATION}")
 
-target_compile_definitions(${LIBRARY_NAME} PUBLIC TFT_HOR_RES=${TFT_X_RES})
-target_compile_definitions(${LIBRARY_NAME} PUBLIC TFT_VER_RES=${TFT_Y_RES})
-target_compile_definitions(${LIBRARY_NAME} PUBLIC TFT_ROTATION=${TFT_ROTATION})
-target_compile_definitions(${LIBRARY_NAME} PUBLIC TFT_X_OFFS=${TFT_X_OFFS})
-target_compile_definitions(${LIBRARY_NAME} PUBLIC TFT_Y_OFFS=${TFT_Y_OFFS})
-target_compile_definitions(${LIBRARY_NAME} PUBLIC TFT_BUS_CLK_KHZ=${TFT_BUS_CLK_KHZ})
-target_compile_definitions(${LIBRARY_NAME} PUBLIC DISP_OVER_PIO=${DISP_OVER_PIO})
-
-if (TFT_COLOR_16_SWAP)
-    target_compile_definitions(${LIBRARY_NAME} PUBLIC TFT_COLOR_16_SWAP=1)
-else()
-    target_compile_definitions(${LIBRARY_NAME} PUBLIC TFT_COLOR_16_SWAP=0)
-endif()
-
-if(TFT_MODEL_GENERIC)
-    target_compile_definitions(${LIBRARY_NAME} PUBLIC TFT_MODEL_GENERIC=1)
-else()
-    target_compile_definitions(${LIBRARY_NAME} PUBLIC TFT_MODEL_GENERIC=0)
-endif()
-
-# TFT drivers define
-
-if(TFT_DRV_USE_ILI9341)
-    target_compile_definitions(${LIBRARY_NAME} PUBLIC TFT_DRV_USE_ILI9341=1)
-else()
-    target_compile_definitions(${LIBRARY_NAME} PUBLIC TFT_DRV_USE_ILI9341=0)
-endif()
-
-if(TFT_DRV_USE_ILI9481)
-    target_compile_definitions(${LIBRARY_NAME} PUBLIC TFT_DRV_USE_ILI9481=1)
-else()
-    target_compile_definitions(${LIBRARY_NAME} PUBLIC TFT_DRV_USE_ILI9481=0)
-endif()
-
-if(TFT_DRV_USE_ILI9488)
-    target_compile_definitions(${LIBRARY_NAME} PUBLIC TFT_DRV_USE_ILI9488=1)
-else()
-    target_compile_definitions(${LIBRARY_NAME} PUBLIC TFT_DRV_USE_ILI9488=0)
-endif()
-
-if(TFT_DRV_USE_ST7735)
-    target_compile_definitions(${LIBRARY_NAME} PUBLIC TFT_DRV_USE_ST7735=1)
-else()
-    target_compile_definitions(${LIBRARY_NAME} PUBLIC TFT_DRV_USE_ST7735=0)
-endif()
-
-target_compile_definitions(${LIBRARY_NAME} PUBLIC
-    TFT_MODEL_MD144_SPI_V04=${TFT_MODEL_MD144_SPI_V04}
+panel_emit_value(
+    TFT_X_RES=TFT_HOR_RES
+    TFT_Y_RES=TFT_VER_RES
+    TFT_ROTATION
+    TFT_X_OFFS
+    TFT_Y_OFFS
+    TFT_BUS_CLK_KHZ
+    DISP_OVER_PIO
+    TFT_BGR
 )
 
-if(TFT_DRV_USE_ST7789V)
-    target_compile_definitions(${LIBRARY_NAME} PUBLIC TFT_DRV_USE_ST7789V=1)
-else()
-    target_compile_definitions(${LIBRARY_NAME} PUBLIC TFT_DRV_USE_ST7789V=0)
-endif()
+panel_emit_flag(TFT_COLOR_16_SWAP TFT_MODEL_GENERIC)
 
-target_compile_definitions(${LIBRARY_NAME} PUBLIC
-    TFT_MODEL_P169H002=${TFT_MODEL_P169H002}
-    TFT_MODEL_YT280S030=${TFT_MODEL_YT280S030}
+# Panel modules within a controller family.  These are plain 0/1 switches like
+# every other flag; while they were emitted raw, a config that did not set one
+# got `-DTFT_MODEL_X=""` -- a string literal, which disabled the matching #ifndef
+# default in config.h and made `#elif TFT_MODEL_X` a preprocessor error.  They
+# only compiled because every such site sits inside `#if TFT_DRV_USE_<driver>`
+# and those drivers happened to be off.
+panel_emit_flag(
+    TFT_MODEL_MD144_SPI_V04
+    TFT_MODEL_P169H002
+    TFT_MODEL_YT280S030
+    TFT_MODEL_YT350S006
+    TFT_MODEL_W180TE010I_18Z
 )
 
-if(TFT_DRV_USE_ST7796)
-    target_compile_definitions(${LIBRARY_NAME} PUBLIC TFT_DRV_USE_ST7796=1)
-else()
-    target_compile_definitions(${LIBRARY_NAME} PUBLIC TFT_DRV_USE_ST7796=0)
-endif()
-
-target_compile_definitions(${LIBRARY_NAME} PUBLIC
-    TFT_MODEL_YT350S006=${TFT_MODEL_YT350S006}
+# Controller selection.  One flag per driver, and this list is the single place a
+# new controller has to be registered.
+panel_emit_flag(
+    TFT_DRV_USE_ILI9341
+    TFT_DRV_USE_ILI9481
+    TFT_DRV_USE_ILI9488
+    TFT_DRV_USE_ST7735
+    TFT_DRV_USE_ST7789V
+    TFT_DRV_USE_ST7796
+    TFT_DRV_USE_ST77916
+    TFT_DRV_USE_SSD1306
+    TFT_DRV_USE_SSD1327
+    TFT_DRV_USE_SSD1681
+    TFT_DRV_USE_GC9A01
+    TFT_DRV_USE_R61581
+    TFT_DRV_USE_ST6201
+    TFT_DRV_USE_ST7305
+    TFT_DRV_USE_ST7576
+    TFT_DRV_USE_1P5623
 )
-
-if(TFT_DRV_USE_ST77916)
-    target_compile_definitions(${LIBRARY_NAME} PUBLIC TFT_DRV_USE_ST77916=1)
-
-    if (TFT_MODEL_GENERIC)
-        target_compile_definitions(${LIBRARY_NAME} PUBLIC TFT_MODEL_GENERIC=1)
-    else()
-        target_compile_definitions(${LIBRARY_NAME} PUBLIC TFT_MODEL_GENERIC=0)
-    endif()
-
-    if(TFT_MODEL_W180TE010I_18Z)
-        target_compile_definitions(${LIBRARY_NAME} PUBLIC TFT_MODEL_W180TE010I_18Z=1)
-    else()
-        target_compile_definitions(${LIBRARY_NAME} PUBLIC TFT_MODEL_W180TE010I_18Z=0)
-    endif()
-
-else()
-    target_compile_definitions(${LIBRARY_NAME} PUBLIC TFT_DRV_USE_ST77916=0)
-endif()
-
-if(TFT_DRV_USE_SSD1306)
-    target_compile_definitions(${LIBRARY_NAME} PUBLIC TFT_DRV_USE_SSD1306=1)
-else()
-    target_compile_definitions(${LIBRARY_NAME} PUBLIC TFT_DRV_USE_SSD1306=0)
-endif()
-
-if(TFT_DRV_USE_SSD1327)
-    target_compile_definitions(${LIBRARY_NAME} PUBLIC TFT_DRV_USE_SSD1327=1)
-else()
-    target_compile_definitions(${LIBRARY_NAME} PUBLIC TFT_DRV_USE_SSD1327=0)
-endif()
-
-if(TFT_DRV_USE_SSD1681)
-    target_compile_definitions(${LIBRARY_NAME} PUBLIC TFT_DRV_USE_SSD1681=1)
-else()
-    target_compile_definitions(${LIBRARY_NAME} PUBLIC TFT_DRV_USE_SSD1681=0)
-endif()
-
-if(TFT_DRV_USE_GC9A01)
-    target_compile_definitions(${LIBRARY_NAME} PUBLIC TFT_DRV_USE_GC9A01=1)
-else()
-    target_compile_definitions(${LIBRARY_NAME} PUBLIC TFT_DRV_USE_GC9A01=0)
-endif()
-
-if(TFT_DRV_USE_R61581)
-    target_compile_definitions(${LIBRARY_NAME} PUBLIC TFT_DRV_USE_R61581=1)
-else()
-    target_compile_definitions(${LIBRARY_NAME} PUBLIC TFT_DRV_USE_R61581=0)
-endif()
-
-if(TFT_DRV_USE_ST6201)
-    target_compile_definitions(${LIBRARY_NAME} PUBLIC TFT_DRV_USE_ST6201=1)
-else()
-    target_compile_definitions(${LIBRARY_NAME} PUBLIC TFT_DRV_USE_ST6201=0)
-endif()
-
-if(TFT_DRV_USE_ST7305)
-    target_compile_definitions(${LIBRARY_NAME} PUBLIC TFT_DRV_USE_ST7305=1)
-else()
-    target_compile_definitions(${LIBRARY_NAME} PUBLIC TFT_DRV_USE_ST7305=0)
-endif()
-
-if(TFT_DRV_USE_ST7576)
-    target_compile_definitions(${LIBRARY_NAME} PUBLIC TFT_DRV_USE_ST7576=1)
-else()
-    target_compile_definitions(${LIBRARY_NAME} PUBLIC TFT_DRV_USE_ST7576=0)
-endif()
-
-if(TFT_DRV_USE_1P5623)
-    target_compile_definitions(${LIBRARY_NAME} PUBLIC TFT_DRV_USE_1P5623=1)
-else()
-    target_compile_definitions(${LIBRARY_NAME} PUBLIC TFT_DRV_USE_1P5623=0)
-endif()

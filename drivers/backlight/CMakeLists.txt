@@ -1,7 +1,6 @@
-target_compile_definitions(${LIBRARY_NAME} PUBLIC TFT_PIN_BLK=${TFT_PIN_BLK})
+# Backlight.  The pin is only emitted when the panel config names it; the active
+# level is a plain 0/1 switch.
+panel_emit_value(TFT_PIN_BLK)
+panel_emit_flag(TFT_BLK_ACTIVE_HIGH)
 
-if (TFT_BLK_ACTIVE_HIGH)
-    target_compile_definitions(${LIBRARY_NAME} PUBLIC TFT_BLK_ACTIVE_HIGH=1)
-else()
-    target_compile_definitions(${LIBRARY_NAME} PUBLIC TFT_BLK_ACTIVE_HIGH=0)
-endif()
+panel_require(TFT_PIN_BLK)
