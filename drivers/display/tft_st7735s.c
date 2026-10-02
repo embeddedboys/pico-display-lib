@@ -23,6 +23,26 @@
 
 #if TFT_DRV_USE_ST7735
 
+/*
+ * MADCTL bit 5 swaps the axes, and which way an init sequence leaves the glass
+ * is a property of that sequence rather than of the controller.  The defaults
+ * below are what each variant has always done; setting TFT_MADCTL_MV in the
+ * panel config overrides it.
+ *
+ * This exists because TFT_MODEL_* had become a de-facto orientation switch: a
+ * portrait glass whose sequence was the "GENERIC" one came out rotated, and the
+ * only way to fix it was to claim to be a different model.
+ */
+#if TFT_MODEL_GENERIC
+    #ifndef TFT_MADCTL_MV
+        #define TFT_MADCTL_MV 1     /* GENERIC's sequence is a landscape one */
+    #endif
+#elif TFT_MODEL_MD144_SPI_V04
+    #ifndef TFT_MADCTL_MV
+        #define TFT_MADCTL_MV 0     /* MD144's is portrait */
+    #endif
+#endif
+
 static int tft_st7735_init_display(struct tft_priv *priv)
 {
     printf("%s, writing patched initial sequence...\n", __func__);
@@ -45,7 +65,9 @@ static int tft_st7735_init_display(struct tft_priv *priv)
     write_reg(priv, 0x11);
     mdelay(120);
 
-    write_reg(priv, 0x36, (1 << 7) | (1 << 6) | (1 << 5));
+    /* 0xC0 = MY|MX.  Bit 3 stays clear in this sequence (it has always been),
+     * so this keeps writing exactly 0xE0 while its MV default is 1. */
+    write_reg(priv, 0x36, 0xC0 | (TFT_MADCTL_MV ? (1 << 5) : 0));
     write_reg(priv, 0x3A, 0x55);
 
     write_reg(priv, 0x21);
@@ -73,7 +95,8 @@ static int tft_st7735_init_display(struct tft_priv *priv)
     /* 0xC0 = MY|MX; bit 3 (BGR) comes from the config, since red/blue order is
      * a property of the glass.  It used to be hardcoded set, which showed as
      * red and blue exchanged on panels that want it clear. */
-    write_reg(priv, 0x36, 0xC0 | (TFT_BGR ? (1 << 3) : 0));
+    write_reg(priv, 0x36, 0xC0 | (TFT_MADCTL_MV ? (1 << 5) : 0) |
+                        (TFT_BGR ? (1 << 3) : 0));
     write_reg(priv, 0x29);
 #endif
 }

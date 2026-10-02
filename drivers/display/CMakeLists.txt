@@ -27,6 +27,7 @@ panel_emit_value(
     TFT_BUS_CLK_KHZ
     DISP_OVER_PIO
     TFT_BGR
+    TFT_MADCTL_MV
 )
 
 panel_emit_flag(TFT_COLOR_16_SWAP TFT_MODEL_GENERIC)
