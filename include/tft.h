@@ -163,8 +163,24 @@ extern u8 tft_get_rotation(void);
         extern int pio_spi_tx_init(uint data_pin, uint clk_pin);
         extern void pio_spi_tx_write_buf_dc(void *buf, size_t len, bool dc);
         #define write_buf_dc(p, b, l, r) pio_spi_tx_write_buf_dc(b, l, r)
+        /*
+         * pio_spi_tx_write_buf_dc() is synchronous -- it waits for the PIO to
+         * drain before returning -- so the async pair maps onto it the same way
+         * the non-PIO I8080 path does: the write happens here, and there is
+         * nothing left for the wait to do.  The async contract still holds (the
+         * caller may reuse the buffer once "async" returns), it is just that
+         * "async" took as long as the transfer did.
+         *
+         * Both used to be missing from this branch, so tft_async_video_flush()
+         * and tft_async_video_wait() referenced undeclared identifiers and every
+         * TFT_BUS_TYPE=0 build failed to link.
+         */
+        #define write_buf_dc_async(p, b, l, r) pio_spi_tx_write_buf_dc(b, l, r)
+        #define write_buf_dc_sync()
     #else
         #define write_buf_dc(p, b, l, r) tft_spi_write_buf_dc(p, b, l, r)
+        #define write_buf_dc_async(p, b, l, r) tft_spi_write_buf_dc(p, b, l, r)
+        #define write_buf_dc_sync()
     #endif
 
 #elif TFT_BUS_TYPE == TFT_BUS_TYPE_I80
