@@ -270,18 +270,64 @@ u8 tft_get_rotation(void)
     return g_priv.display ? (u8)g_priv.display->rotate : (u8)TFT_ROTATION;
 }
 
+#if TFT_COLOR_16_SWAP
+/*
+ * RGB565 over an 8-bit bus goes out high byte first, so a buffer the driver is
+ * about to send has to be byte-swapped when the caller built it the usual
+ * little-endian way.
+ *
+ * The swap used to be applied to the caller's buffer and left there.  That made
+ * the call destructive in a way the caller cannot see: flushing the same buffer
+ * twice -- a retry, a static image, a benchmark -- toggled the byte order every
+ * time, so the panel showed different colours depending on how many times the
+ * buffer happened to have been sent.  It is now applied around the transfer
+ * instead: swap, send, swap back.  One extra pass over the buffer is not worth
+ * worrying about here -- the USB link is two orders of magnitude slower than the
+ * panel bus, so this path is never the bottleneck.
+ */
+static void tft_swap_bytes(void *vmem, size_t len)
+{
+    u16 *p = (u16 *)vmem;
+
+    for (size_t i = 0; i < len / 2; i++)
+        p[i] = (p[i] << 8) | (p[i] >> 8);
+}
+
+/*
+ * The asynchronous path cannot swap back until whatever read the buffer has
+ * finished, and that happens either in tft_async_video_wait() or at the start of
+ * the next flush (it completes the pending transfer first).  One record is
+ * enough because the async contract allows only one transfer in flight.
+ */
+static void *s_pending_vmem;
+static size_t s_pending_len;
+
+static void tft_swap_back_pending(void)
+{
+    if (!s_pending_vmem)
+        return;
+
+    tft_swap_bytes(s_pending_vmem, s_pending_len);
+    s_pending_vmem = NULL;
+    s_pending_len = 0;
+}
+#endif
+
 static void tft_video_sync(struct tft_priv *priv, int xs, int ys, int xe, int ye, void *vmem, size_t len)
 {
     // pr_debug("video sync: xs=%d, ys=%d, xe=%d, ye=%d, len=%d\n", xs, ys, xe, ye, len);
     priv->tftops->set_addr_win(priv, xs, ys, xe, ye);
 
 #if TFT_COLOR_16_SWAP
-    u16 *p = (u16 *)vmem;
-    for (size_t i = 0; i < len / 2; i++)
-        p[i] = (p[i] << 8) | (p[i] >> 8);
+    tft_swap_bytes(vmem, len);
 #endif
 
     write_buf_dc(priv, vmem, len, 1);
+
+#if TFT_COLOR_16_SWAP
+    /* Hand the buffer back exactly as it was given to us. */
+    tft_swap_bytes(vmem, len);
+#endif
 }
 
 void tft_video_flush(int xs, int ys, int xe, int ye, void *vmem, uint32_t len)
@@ -300,12 +346,18 @@ void tft_video_flush(int xs, int ys, int xe, int ye, void *vmem, uint32_t len)
  */
 void tft_async_video_flush(int xs, int ys, int xe, int ye, void *vmem, uint32_t len)
 {
+#if TFT_COLOR_16_SWAP
+    /* The previous flush's transfer is finished by this one, so its buffer is
+     * free to be restored now. */
+    tft_swap_back_pending();
+#endif
+
     g_priv.tftops->set_addr_win(&g_priv, xs, ys, xe, ye);
 
 #if TFT_COLOR_16_SWAP
-    u16 *p = (u16 *)vmem;
-    for (size_t i = 0; i < len / 2; i++)
-        p[i] = (p[i] << 8) | (p[i] >> 8);
+    tft_swap_bytes(vmem, len);
+    s_pending_vmem = vmem;
+    s_pending_len = len;
 #endif
 
     write_buf_dc_async(&g_priv, vmem, len, 1);
@@ -314,6 +366,10 @@ void tft_async_video_flush(int xs, int ys, int xe, int ye, void *vmem, uint32_t 
 void tft_async_video_wait(void)
 {
     write_buf_dc_sync();
+
+#if TFT_COLOR_16_SWAP
+    tft_swap_back_pending();
+#endif
 }
 
 #if TFT_BUS_TYPE == TFT_BUS_TYPE_SPI
