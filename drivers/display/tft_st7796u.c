@@ -28,7 +28,7 @@ static int tft_st7796_init_display(struct tft_priv *priv)
     printf("%s, writing patched initial sequence...\n", __func__);
     priv->tftops->reset(priv);
 
-#if TFT_MODEL_YT350S006
+#if TFT_ST7796_VARIANT_YT350S006
     write_reg(priv, 0x11);
     mdelay(120);
 

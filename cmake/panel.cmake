@@ -64,3 +64,28 @@ function(panel_require)
         endif()
     endforeach()
 endfunction()
+
+# panel_require_one_of(<description> <FLAG>...)
+#
+# Require exactly one legacy panel-variant flag. The panel configs keep their
+# established names; drivers receive controller-scoped compile definitions.
+function(panel_require_one_of _description)
+    set(_selected)
+    foreach(_flag IN LISTS ARGN)
+        if(${_flag})
+            list(APPEND _selected "${_flag}")
+        endif()
+    endforeach()
+
+    list(LENGTH _selected _count)
+    if(NOT _count EQUAL 1)
+        if(_selected)
+            string(JOIN ", " _selected_text ${_selected})
+        else()
+            set(_selected_text "none")
+        endif()
+        message(FATAL_ERROR
+            "panel config '${PUD_CONFIG}' must select exactly one ${_description}; "
+            "selected: ${_selected_text}")
+    endif()
+endfunction()

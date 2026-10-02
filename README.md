@@ -7,10 +7,10 @@
 
 ### To-do
 
-- [ ] Rotation support
+- [x] Rotation support
 - [ ] Debug support
 - [ ] Fix I8080 GPIO bit-bang issue
-- [ ] Refactor TFT model selection routine
+- [x] Refactor TFT model selection routine (legacy config flags map to validated, controller-specific build variants)
 
 ## 特性
 

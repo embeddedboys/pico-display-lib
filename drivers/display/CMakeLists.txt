@@ -30,21 +30,7 @@ panel_emit_value(
     TFT_MADCTL_MV
 )
 
-panel_emit_flag(TFT_COLOR_16_SWAP TFT_MODEL_GENERIC)
-
-# Panel modules within a controller family.  These are plain 0/1 switches like
-# every other flag; while they were emitted raw, a config that did not set one
-# got `-DTFT_MODEL_X=""` -- a string literal, which disabled the matching #ifndef
-# default in config.h and made `#elif TFT_MODEL_X` a preprocessor error.  They
-# only compiled because every such site sits inside `#if TFT_DRV_USE_<driver>`
-# and those drivers happened to be off.
-panel_emit_flag(
-    TFT_MODEL_MD144_SPI_V04
-    TFT_MODEL_P169H002
-    TFT_MODEL_YT280S030
-    TFT_MODEL_YT350S006
-    TFT_MODEL_W180TE010I_18Z
-)
+panel_emit_flag(TFT_COLOR_16_SWAP)
 
 # Controller selection.  One flag per driver, and this list is the single place a
 # new controller has to be registered.
@@ -66,3 +52,44 @@ panel_emit_flag(
     TFT_DRV_USE_ST7576
     TFT_DRV_USE_1P5623
 )
+
+# Legacy panel configs identify the initialization sequence with TFT_MODEL_*.
+# Convert those inputs into private, controller-scoped definitions so model
+# names cannot collide across controller families.
+if(TFT_DRV_USE_ST7735)
+    panel_require_one_of("ST7735 initialization variant"
+        TFT_MODEL_GENERIC
+        TFT_MODEL_MD144_SPI_V04)
+    if(TFT_MODEL_GENERIC)
+        target_compile_definitions(${LIBRARY_NAME} PRIVATE TFT_ST7735_VARIANT_GENERIC=1)
+    else()
+        target_compile_definitions(${LIBRARY_NAME} PRIVATE TFT_ST7735_VARIANT_MD144_SPI_V04=1)
+    endif()
+endif()
+
+if(TFT_DRV_USE_ST7789V)
+    panel_require_one_of("ST7789V initialization variant"
+        TFT_MODEL_P169H002
+        TFT_MODEL_YT280S030)
+    if(TFT_MODEL_P169H002)
+        target_compile_definitions(${LIBRARY_NAME} PRIVATE TFT_ST7789V_VARIANT_P169H002=1)
+    else()
+        target_compile_definitions(${LIBRARY_NAME} PRIVATE TFT_ST7789V_VARIANT_YT280S030=1)
+    endif()
+endif()
+
+if(TFT_DRV_USE_ST77916)
+    panel_require_one_of("ST77916 initialization variant"
+        TFT_MODEL_GENERIC
+        TFT_MODEL_W180TE010I_18Z)
+    if(TFT_MODEL_GENERIC)
+        target_compile_definitions(${LIBRARY_NAME} PRIVATE TFT_ST77916_VARIANT_GENERIC=1)
+    else()
+        target_compile_definitions(${LIBRARY_NAME} PRIVATE TFT_ST77916_VARIANT_W180TE010I_18Z=1)
+    endif()
+endif()
+
+if(TFT_DRV_USE_ST7796)
+    panel_require_one_of("ST7796 initialization variant" TFT_MODEL_YT350S006)
+    target_compile_definitions(${LIBRARY_NAME} PRIVATE TFT_ST7796_VARIANT_YT350S006=1)
+endif()

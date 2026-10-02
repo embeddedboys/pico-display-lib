@@ -33,11 +33,11 @@
  * portrait glass whose sequence was the "GENERIC" one came out rotated, and the
  * only way to fix it was to claim to be a different model.
  */
-#if TFT_MODEL_GENERIC
+#if TFT_ST7735_VARIANT_GENERIC
     #ifndef TFT_MADCTL_MV
         #define TFT_MADCTL_MV 1     /* GENERIC's sequence is a landscape one */
     #endif
-#elif TFT_MODEL_MD144_SPI_V04
+#elif TFT_ST7735_VARIANT_MD144_SPI_V04
     #ifndef TFT_MADCTL_MV
         #define TFT_MADCTL_MV 0     /* MD144's is portrait */
     #endif
@@ -60,7 +60,7 @@ static int tft_st7735_init_display(struct tft_priv *priv)
 
     // write_reg(priv, 0x21);
 
-#if TFT_MODEL_GENERIC
+#if TFT_ST7735_VARIANT_GENERIC
     write_reg(priv, 0x29);
     write_reg(priv, 0x11);
     mdelay(120);
@@ -73,7 +73,7 @@ static int tft_st7735_init_display(struct tft_priv *priv)
     write_reg(priv, 0x21);
     write_reg(priv, 0x29);
 
-#elif TFT_MODEL_MD144_SPI_V04
+#elif TFT_ST7735_VARIANT_MD144_SPI_V04
     write_reg(priv, 0x11);
     mdelay(120);
 

@@ -51,6 +51,10 @@ if(_controllers EQUAL 0)
     message(FATAL_ERROR
         "panel config '${PUD_CONFIG}' selects no TFT controller: set one of the "
         "TFT_DRV_USE_* flags listed in drivers/display/config.cmake")
+elseif(_controllers GREATER 1)
+    message(FATAL_ERROR
+        "panel config '${PUD_CONFIG}' selects ${_controllers} TFT controllers; "
+        "select exactly one TFT_DRV_USE_* flag")
 endif()
 
-message(STATUS "panel ${PUD_CONFIG}: ${_controllers} controller driver(s)")
+message(STATUS "panel ${PUD_CONFIG}: one TFT controller selected")

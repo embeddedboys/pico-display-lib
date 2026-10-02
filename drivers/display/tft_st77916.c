@@ -30,7 +30,7 @@ static int tft_st77916_init_display(struct tft_priv *priv)
     printf("%s, writing patched initial sequence...\n", __func__);
     priv->tftops->reset(priv);
 
-#if TFT_MODEL_GENERIC || TFT_MODEL_W180TE010I_18Z
+#if TFT_ST77916_VARIANT_GENERIC || TFT_ST77916_VARIANT_W180TE010I_18Z
     write_cmd(priv, 0xF0);
     write_data(priv, 0x28);
     write_cmd(priv, 0xF2);

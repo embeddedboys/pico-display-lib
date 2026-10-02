@@ -28,7 +28,7 @@ static int tft_st7789v_init_display(struct tft_priv *priv)
     printf("%s, writing patched initial sequence...\n", __func__);
     priv->tftops->reset(priv);
 
-#if TFT_MODEL_P169H002
+#if TFT_ST7789V_VARIANT_P169H002
     write_reg(priv, 0x11);
     mdelay(120);
 
@@ -70,7 +70,7 @@ static int tft_st7789v_init_display(struct tft_priv *priv)
 
     write_reg(priv, 0x21);
     write_reg(priv, 0x29);
-#elif TFT_MODEL_YT280S030
+#elif TFT_ST7789V_VARIANT_YT280S030
     write_reg(priv, 0x11);
     mdelay(120);
 
