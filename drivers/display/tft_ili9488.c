@@ -55,6 +55,27 @@ static int tft_ili9488_init_display(struct tft_priv *priv)
     // mdelay(120);
     // write_reg(priv, 0x29);
 
+#if TFT_ILI9488_VARIANT_ZT350IT008
+    /* Z350IT008 面板（PWD 这块模组，用户按屏上丝印确认 ✓）。
+     * 序列照 `pico_dm_8080_template/src/tft_ili9488.c` 的 `TFT_MODEL_ZT350IT008` 那一支**逐条抄** ✓
+     * （与默认的 QD3503728 那套在伽马、帧率、VCOM、Display Function 上都不同 ✗，
+     *   用错会出现色彩问题 ✓）。 */
+    write_reg(priv, 0xE0, 0x00, 0x07, 0x10, 0x09, 0x17, 0x0B, 0x40, 0x8A, 0x4B, 0x0A, 0x0D, 0x0F, 0x15, 0x16, 0x0F);
+    write_reg(priv, 0xE1, 0x00, 0x1A, 0x1B, 0x02, 0x0D, 0x05, 0x30, 0x35, 0x43, 0x02, 0x0A, 0x09, 0x32, 0x36, 0x0F);
+    write_reg(priv, 0xB1, 0xA0);
+    write_reg(priv, 0xB4, 0x02);
+    write_reg(priv, 0xC0, 0x17, 0x15);
+    write_reg(priv, 0xC1, 0x41);
+    write_reg(priv, 0xC5, 0x00, 0x30, 0x80);
+    write_reg(priv, 0xB6, 0x02);
+    write_reg(priv, 0x36, 0x28);                /* Memory Access Control（随后由 set_dir 按 rotation 重写 ✓）*/
+    write_reg(priv, 0x3A, 0x55);                /* RGB565，8080 16-bit */
+    write_reg(priv, 0xE9, 0x00);
+    write_reg(priv, 0xF7, 0xA9, 0x51, 0x2C, 0x82);
+    write_reg(priv, 0x11);                      /* Exit Sleep */
+    mdelay(120);
+    write_reg(priv, 0x29);                      /* Display on */
+#else
     write_reg(priv, 0xE0, 0x00, 0x03, 0x09, 0x08, 0x16, 0x0A, 0x3F, 0x78, 0x4C, 0x09, 0x0A, 0x08, 0x16, 0x1A, 0x0F);
 
     // Negative Gamma Control
@@ -78,6 +99,8 @@ static int tft_ili9488_init_display(struct tft_priv *priv)
     write_reg(priv, 0x11);                      // Exit Sleep
     mdelay(60);
     write_reg(priv, 0x29);                      // Display on
+
+#endif
 
     return 0;
 }

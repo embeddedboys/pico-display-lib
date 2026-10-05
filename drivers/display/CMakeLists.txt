@@ -89,6 +89,12 @@ if(TFT_DRV_USE_ST77916)
     endif()
 endif()
 
+# ILI9488 的初始化变体：Z350IT008 面板（PWD 用，用户按屏上丝印确认 ✓）。
+# 序列与默认的 QD3503728 那套不同 ✓，所以按型号开关选 ✓（可选：不设该型号时保持默认 ✓）。
+if(TFT_DRV_USE_ILI9488 AND TFT_MODEL_ZT350IT008)
+    target_compile_definitions(${LIBRARY_NAME} PRIVATE TFT_ILI9488_VARIANT_ZT350IT008=1)
+endif()
+
 if(TFT_DRV_USE_ST7796)
     panel_require_one_of("ST7796 initialization variant" TFT_MODEL_YT350S006)
     target_compile_definitions(${LIBRARY_NAME} PRIVATE TFT_ST7796_VARIANT_YT350S006=1)
